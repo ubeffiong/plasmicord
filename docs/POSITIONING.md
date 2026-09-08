@@ -1,10 +1,14 @@
-# From PlasBench to plasmid-sharing investigation
+# PlasmiCord: from PlasBench to plasmid-sharing investigation
+
+**PlasmiCord: A Chromosome-Aware Plasmid Transmission and Surveillance Framework**
+
+*Connecting plasmid sharing with chromosomal epidemiology.*
 
 PlasBench v0.2.7, reviewed locally for this work, benchmarks reconstruction tools
 against reference truth and offers candidate evaluation and protein-coordinate
 recovery views. Project 2 continues the scientific programme at cohort level.
 
-| Question | PlasBench | Transmission Framework |
+| Question | PlasBench | PlasmiCord |
 |---|---|---|
 | Which method reconstructed a reference most accurately? | Primary | Out of scope |
 | Were ARGs/proteins and their reference context recovered? | Reconstruction evidence | Imported quality context only |

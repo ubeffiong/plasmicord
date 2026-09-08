@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "plasmid-transmission-framework"
+name = "plasmicord"
 version = "0.2.0"
-description = "Standalone plasmid-sharing networks, chromosome discordance and functional cargo reporting"
+description = "PlasmiCord: A Chromosome-Aware Plasmid Transmission and Surveillance Framework"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
@@ -13,7 +13,13 @@ authors = [{name = "Ubokobong Effiong"}]
 dependencies = []
 
 [project.scripts]
+plasmicord = "transmission.cli:main"
 transmission = "transmission.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/ubeffiong/plasmicord"
+Repository = "https://github.com/ubeffiong/plasmicord"
+Issues = "https://github.com/ubeffiong/plasmicord/issues"
 
 [tool.setuptools]
 packages = ["transmission"]

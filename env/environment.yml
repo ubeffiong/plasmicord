@@ -1,4 +1,4 @@
-name: plasmid-transmission
+name: plasmicord
 channels:
   - conda-forge
   - bioconda

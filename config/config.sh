@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Plasmid-aware transmission framework — configuration
+# PlasmiCord — configuration
 # Edit this, then run scripts/run_all.sh
 # =============================================================================
 export PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"

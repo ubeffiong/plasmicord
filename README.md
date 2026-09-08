@@ -1,4 +1,8 @@
-# Plasmid Transmission Framework
+# PlasmiCord
+
+**PlasmiCord: A Chromosome-Aware Plasmid Transmission and Surveillance Framework**
+
+*Connecting plasmid sharing with chromosomal epidemiology.*
 
 **From reconstruction quality to plasmid-sharing evidence.** This standalone research
 framework groups reconstructed plasmids into sequence-defined plasmid units (PUs),
@@ -20,21 +24,21 @@ Python 3.10+ is sufficient for the small synthetic demo; no third-party Python p
 bioinformatics databases, browser server, or PlasBench installation are required.
 
 ```sh
-git clone https://github.com/ubeffiong/plasmid-transmission-framework.git
-cd plasmid-transmission-framework
-python transmission.py demo --out results_demo
+git clone https://github.com/ubeffiong/plasmicord.git
+cd plasmicord
+python plasmicord.py demo --out results_demo
 ```
 
 Open **`results_demo/results/REPORT.html`** in a browser. The demo uses seeded random
 sequences and clearly labelled illustrative gene annotations, not biological detections.
 Expected: 5 isolates, 5 plasmids, 2 PUs, 4 sharing pairs, 3 cross-cluster pairs.
 
-Optional installation provides the `transmission` command from any directory:
+Optional installation provides the `plasmicord` command from any directory:
 
 ```sh
 python -m pip install .
-transmission check
-transmission demo --out results_demo_installed
+plasmicord check
+plasmicord demo --out results_demo_installed
 ```
 
 The exact k-mer engine is intended for small sets (maximum 200 plasmids), not a
@@ -61,7 +65,7 @@ indexed plasmids. `isolate_id` is required; `chromosomal_cluster`, ISO-format `d
 typing scheme and be namespaced where organisms/schemes differ.
 
 ```sh
-transmission run --manifest manifest.tsv --metadata metadata.tsv \
+plasmicord run --manifest manifest.tsv --metadata metadata.tsv \
   --mode precomputed --engine mash --threshold 0.01 --linkage complete \
   --out results_cohort
 ```
@@ -122,7 +126,7 @@ reconstruction and the supplied conda environment target Linux/WSL.
 python -m unittest discover -s test -p test_standalone.py -v
 python test/test_clustering.py
 python test/test_network_discordance.py
-python transmission.py demo --out results_check
+python plasmicord.py demo --out results_check
 ```
 
 Tests establish software behaviour on fixtures; they do not establish biological
@@ -135,9 +139,11 @@ Actions is not enabled; installing the template requires workflow write permissi
 The original Ubuntu shell stages remain in `scripts/` and `adapters/` for compatibility:
 `bash scripts/run_all.sh` runs MOB-recon, Mash, clustering and a basic Markdown report.
 This older route **does not use the new common validation or HTML/functional report**.
-Prefer producing a manifest from reconstructed candidate FASTAs and using `transmission run`.
+Prefer producing a manifest from reconstructed candidate FASTAs and using `plasmicord run`.
 The legacy `config/metadata.tsv` contains placeholders only. Do not treat an empty run
 or failed extraction as evidence that an isolate has no plasmids.
+
+The earlier `transmission` command and `transmission.py` launcher remain compatible.
 
 ## License
 

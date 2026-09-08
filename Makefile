@@ -6,7 +6,7 @@ help:
 	@echo "make check  - verify dependencies (stage 0)"
 	@echo "make run    - full pipeline (stages 0-5)"
 	@echo "make clean  - remove demo/tmp/pycache"
-demo:  ; python3 transmission.py demo --out results_demo
+demo:  ; python3 plasmicord.py demo --out results_demo
 test:
 	python3 -m unittest discover -s test -p test_standalone.py -v
 	python3 test/test_clustering.py

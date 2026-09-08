@@ -5,7 +5,9 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/../config/config.sh"; source "$HERE/lib.sh"
 REPORT="$RESULTS_DIR/REPORT.md"
 {
-  echo "# Plasmid-aware transmission report"
+  echo "# PlasmiCord: A Chromosome-Aware Plasmid Transmission and Surveillance Framework"
+  echo
+  echo "Connecting plasmid sharing with chromosomal epidemiology."
   echo
   echo "- Distance engine: \`$DISTANCE_ENGINE\`  |  PU threshold: \`$PU_THRESHOLD\`  |  linkage: \`$LINKAGE\`"
   echo

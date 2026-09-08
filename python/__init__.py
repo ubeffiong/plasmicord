@@ -1,2 +1,5 @@
-"""Standalone plasmid-sharing analysis; no PlasBench runtime dependency."""
+"""PlasmiCord: standalone plasmid-sharing analysis; no PlasBench dependency."""
 __version__ = "0.2.0"
+PROJECT_NAME = "PlasmiCord"
+PROJECT_TITLE = "PlasmiCord: A Chromosome-Aware Plasmid Transmission and Surveillance Framework"
+PROJECT_TAGLINE = "Connecting plasmid sharing with chromosomal epidemiology."

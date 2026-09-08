@@ -1,4 +1,4 @@
-name: standalone-core
+name: PlasmiCord standalone core
 on: [push, pull_request]
 jobs:
   test:
@@ -16,7 +16,7 @@ jobs:
       - run: python -m unittest discover -s test -p test_standalone.py -v
       - run: python test/test_clustering.py
       - run: python test/test_network_discordance.py
-      - run: transmission demo --out results_ci
+      - run: plasmicord demo --out results_ci
       - uses: actions/upload-artifact@v4
         with:
           name: synthetic-report-${{ matrix.os }}-${{ matrix.python }}

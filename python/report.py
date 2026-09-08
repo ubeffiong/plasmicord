@@ -2,6 +2,7 @@
 import html
 import json
 from pathlib import Path
+from . import PROJECT_TITLE, PROJECT_TAGLINE
 from .contracts import read_tsv
 
 SAFEGUARDS = [
@@ -42,7 +43,7 @@ def build_report(out, provenance, index, meta, assignments, features, functions,
     links = "".join(f'<li><a download href="{name}">{name}</a></li>' for name in files)
     template = Path(__file__).with_name("report_template.html").read_text(encoding="utf-8")
     (out / "REPORT.html").write_text(template.replace("__REPORT_DATA__", data).replace("__DOWNLOADS__", links), encoding="utf-8")
-    lines = ["# Plasmid-sharing evidence report", "", f"Dataset: **{provenance['dataset_kind']}**. Framework {provenance['framework_version']}.", "",
+    lines = [f"# {PROJECT_TITLE}", "", PROJECT_TAGLINE, "", f"Dataset: **{provenance['dataset_kind']}**. PlasmiCord {provenance['framework_version']}.", "",
              f"{counts['isolates']} isolates; {counts['plasmids']} accepted plasmids; {counts['units']} plasmid units; "
              f"{counts['sharing_pairs']} sharing pairs; {counts['cross_cluster_pairs']} unique cross-cluster pairs "
              f"({counts['cross_cluster_unit_links']} pair-unit links).", "",

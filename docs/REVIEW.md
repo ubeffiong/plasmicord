@@ -1,4 +1,4 @@
-# Project review — 8 September 2026
+# PlasmiCord project review — 8 September 2026
 
 ## Assessment
 

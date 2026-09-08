@@ -11,7 +11,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import __version__
+from . import __version__, PROJECT_NAME, PROJECT_TITLE, PROJECT_TAGLINE
 from .contracts import (MODES, INDEX_FIELDS, FEATURE_FIELDS, checksum, metadata,
                         normalize_features, read_tsv, validate_manifest, write_tsv)
 from .cluster_plasmids import cluster_single, cluster_complete, read_matrix
@@ -66,6 +66,7 @@ def run(args):
     normalize_features(args.features, index, sequences, {})
     out.mkdir(parents=True, exist_ok=True)
     record = dict(schema_version="1.0", framework_version=__version__, status="running",
+                  project_name=PROJECT_NAME, project_title=PROJECT_TITLE, project_tagline=PROJECT_TAGLINE,
                   started_at=datetime.now(timezone.utc).isoformat(), python=platform.python_version(),
                   mode=args.mode, dataset_kind="synthetic demonstration" if getattr(args, "synthetic", False) else "user supplied",
                   distance_engine=args.engine, threshold=args.threshold, linkage=args.linkage,
@@ -203,8 +204,8 @@ def demo(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Standalone plasmid-sharing analysis; inputs need no PlasBench installation")
-    parser.add_argument("--version", action="version", version=__version__)
+    parser = argparse.ArgumentParser(description=PROJECT_TITLE, epilog=PROJECT_TAGLINE)
+    parser.add_argument("--version", action="version", version=f"{PROJECT_NAME} {__version__}")
     subs = parser.add_subparsers(dest="command", required=True)
     p = subs.add_parser("run", help="Validate reconstructed plasmids and build an offline evidence report")
     p.add_argument("--manifest", type=Path, required=True)

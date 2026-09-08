@@ -1,19 +1,19 @@
-# Installation
+# PlasmiCord installation
 
 ## Portable standalone core
 
 Python 3.10 or later is sufficient on Windows, Linux or macOS:
 
 ```sh
-python transmission.py demo --out results_demo
+python plasmicord.py demo --out results_demo
 ```
 
 Optionally install the CLI:
 
 ```sh
 python -m pip install .
-transmission check
-transmission demo --out results_demo_installed
+plasmicord check
+plasmicord demo --out results_demo_installed
 ```
 
 Open the generated `results_demo/results/REPORT.html`. The browser needs no server,
@@ -25,10 +25,10 @@ With conda or mamba installed:
 
 ```sh
 conda env create -f env/environment.yml
-conda activate plasmid-transmission
+conda activate plasmicord
 python -m pip install .
-transmission check
-transmission demo --engine mash --out results_mash_demo
+plasmicord check
+plasmicord demo --engine mash --out results_mash_demo
 ```
 
 The environment includes Mash, MOB-suite and Python. MOB-suite and its databases are
@@ -38,7 +38,7 @@ to the installed MOB-suite release before reconstruction. The standalone core do
 download databases or invoke annotators automatically.
 
 ```sh
-transmission run --manifest manifest.tsv --metadata metadata.tsv \
+plasmicord run --manifest manifest.tsv --metadata metadata.tsv \
   --engine mash --threshold 0.01 --out results_cohort
 ```
 
@@ -47,7 +47,7 @@ value. Use `--engine kmer` explicitly for small inputs if Mash is unavailable.
 
 ## Troubleshooting
 
-- Missing Mash: activate the environment containing `mash`, then run `transmission check`.
+- Missing Mash: activate the environment containing `mash`, then run `plasmicord check`.
 - Existing output directory: choose a fresh directory. Completed or failed runs are
   preserved so an interrupted run cannot silently mix with an older result.
 - Unknown chromosome clusters: sharing networks remain available; those isolates are
