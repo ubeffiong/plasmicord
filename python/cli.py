@@ -16,13 +16,14 @@ from .contracts import (MODES, INDEX_FIELDS, FEATURE_FIELDS, checksum, metadata,
                         normalize_features, read_tsv, validate_manifest, write_tsv)
 from .cluster_plasmids import cluster_single, cluster_complete, read_matrix
 from .report import build_report
+from .quality import assess, load_evidence, QUALITY_FIELDS
 
 
 def step(script, *args):
     subprocess.run([sys.executable, str(Path(__file__).with_name(script)), *map(str, args)], check=True)
 
 
-def aggregate(index, features, meta, assignments):
+def aggregate(index, features, meta, assignments, statuses=()):
     members, groups = defaultdict(list), defaultdict(list)
     by_meta = {r["isolate_id"]: r for r in meta}
     for row in index:
@@ -34,21 +35,28 @@ def aggregate(index, features, meta, assignments):
                row.get("amr_gene") or row.get("gene_symbol") or row.get("product_name") or row["feature_id"])
         groups[key].append(row)
     output = []
+    evaluated = {(r['plasmid_id'], r['stage']) for r in statuses if r['status'] == 'complete'}
     for (unit, category, label), rows in sorted(groups.items()):
         carrier_plasmids = {r["plasmid_id"] for r in rows}
         carrier_isolates = {r["isolate_id"] for r in rows}
         meta_rows = [by_meta[i] for i in carrier_isolates]
         dates = sorted(r["date"] for r in meta_rows if r.get("date"))
         prevalence = len(carrier_plasmids) / len(members[unit])
+        # Completion follows the actual caller, not the assigned product category.
+        stages = {'amr' if r.get('annotation_engine') == 'amrfinder' else 'genes'
+                  for r in rows if r.get('annotation_engine') in {'amrfinder', 'bakta', 'prokka'}}
+        n_evaluated = sum(bool(stages) and all((r['plasmid_id'], stage) in evaluated for stage in stages)
+                          for r in members[unit])
         output.append(dict(plasmid_unit=unit, feature_id=label, functional_category=category,
                            prevalence_in_unit=prevalence,
                            core_or_accessory="observed_in_all" if prevalence == 1 else "observed_in_subset",
                            n_plasmids=len(carrier_plasmids), denominator_plasmids=len(members[unit]),
+                           n_evaluated_plasmids=n_evaluated, annotation_coverage=n_evaluated/len(members[unit]),
                            n_isolates=len(carrier_isolates), n_organisms=len({r['organism'] for r in meta_rows if r.get('organism')}),
                            n_locations=len({r['location'] for r in meta_rows if r.get('location')}),
                            first_date=dates[0] if dates else "", last_date=dates[-1] if dates else "",
                            representative_sequence=min(carrier_plasmids),
-                           completeness="unresolved", interpretation="annotation-label prevalence; absence not evaluated"))
+                           completeness="unresolved", interpretation="annotation-label prevalence; no validated orthology/core-gene inference"))
     return output
 
 
@@ -64,6 +72,8 @@ def run(args):
         raise ValueError(f"Output directory is not empty: {out}. Use a fresh directory to avoid stale results.")
     # Validate feature records before doing any expensive work.
     normalize_features(args.features, index, sequences, {})
+    if args.features and getattr(args, 'annotation_config', None):
+        raise ValueError("Use either imported --features or --annotation-config to avoid double-counting annotation sources")
     out.mkdir(parents=True, exist_ok=True)
     record = dict(schema_version="1.0", framework_version=__version__, status="running",
                   project_name=PROJECT_NAME, project_title=PROJECT_TITLE, project_tagline=PROJECT_TAGLINE,
@@ -75,12 +85,24 @@ def run(args):
                   manifest_sha256=checksum(args.manifest), metadata_sha256=checksum(args.metadata),
                   features_sha256=checksum(args.features) if args.features else None,
                   annotation_status="imported; absence not evaluated" if args.features else "not_evaluated",
-                  quality_policy="technical validation only; biological quality not independently confirmed",
+                  quality_policy="evidence-based research rules v1.0; tiers are not calibrated probabilities",
                   sequence_checksum_definition="sha256 of uppercase contig sequences joined by newline, no terminal newline; input contig order",
                   plasbench_dependency=False)
     provenance = out / "run_provenance.json"
     provenance.write_text(json.dumps(record, indent=2), encoding="utf-8")
     try:
+        annotation_statuses, typing, features_path = [], {}, args.features
+        if getattr(args, 'annotation_config', None):
+            from .annotation import annotate_candidates
+            features_path, annotation_statuses, typing = annotate_candidates(index, sequences, args.annotation_config,
+                out, getattr(args, 'annotation_cache', None), getattr(args, 'threads', 1), getattr(args, 'annotation_profile', 'essential'))
+            record['annotation_status'] = 'automatic; per-candidate stage completion recorded'
+            record['annotation_config_sha256'] = checksum(args.annotation_config)
+        evidence = load_evidence(getattr(args, 'quality_evidence', None), index)
+        quality_rows = assess(index, sequences, typing, evidence)
+        write_tsv(out/'biological_quality.tsv', QUALITY_FIELDS, quality_rows)
+        if getattr(args, 'quality_evidence', None):
+            record['quality_evidence_sha256'] = checksum(args.quality_evidence)
         accepted = [r for r in index if r["quality_status"] != "rejected"]
         write_tsv(out / "validation.tsv", INDEX_FIELDS, index)
         pdir = out / "plasmids"
@@ -122,10 +144,10 @@ def run(args):
         step("build_network.py", "--index", out / "plasmid_index.tsv", "--clusters", out / "plasmid_clusters.tsv",
              "--metadata", out / "metadata.tsv", "--out-prefix", out / "network")
         step("discordance.py", "--isolate-units", out / "network.isolate_units.tsv", "--metadata", out / "metadata.tsv", "--out-prefix", out / "discordance")
-        features = normalize_features(args.features, index, sequences, assignments)
+        features = normalize_features(features_path, index, sequences, assignments)
         write_tsv(out / "functional_features.tsv", FEATURE_FIELDS, features)
-        functions = aggregate(accepted, features, meta, assignments)
-        fields = "plasmid_unit feature_id functional_category prevalence_in_unit core_or_accessory n_plasmids denominator_plasmids n_isolates n_organisms n_locations first_date last_date representative_sequence completeness interpretation".split()
+        functions = aggregate(accepted, features, meta, assignments, annotation_statuses)
+        fields = "plasmid_unit feature_id functional_category prevalence_in_unit core_or_accessory n_plasmids denominator_plasmids n_evaluated_plasmids annotation_coverage n_isolates n_organisms n_locations first_date last_date representative_sequence completeness interpretation".split()
         write_tsv(out / "plasmid_unit_function.tsv", fields, functions)
         ids, _, distances = read_matrix(matrix)
         if set(ids) != {r["plasmid_id"] for r in accepted}:
@@ -211,6 +233,11 @@ def main():
     p.add_argument("--manifest", type=Path, required=True)
     p.add_argument("--metadata", type=Path, required=True)
     p.add_argument("--features", type=Path, help="Normalized functional TSV, 1-based inclusive coordinates")
+    p.add_argument("--annotation-config", type=Path, help="Run local gene, AMR and mobility annotation using a versioned JSON config")
+    p.add_argument("--annotation-profile", choices=('essential', 'custom'), default='essential')
+    p.add_argument("--annotation-cache", type=Path)
+    p.add_argument("--threads", type=int, default=1)
+    p.add_argument("--quality-evidence", type=Path, help="Checksum-linked classification/read/contamination evidence TSV")
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--mode", choices=MODES, default="precomputed")
     p.add_argument("--engine", choices=("mash", "kmer"), default="mash")
@@ -225,7 +252,21 @@ def main():
     p.add_argument("--engine", choices=("kmer", "mash"), default="kmer")
     p.set_defaults(func=demo)
     p = subs.add_parser("check", help="Read-only runtime check")
-    p.set_defaults(func=lambda args: print(json.dumps({"python": platform.python_version(), "standalone_core": "available", "mash": shutil.which("mash"), "mob_recon": shutil.which("mob_recon"), "automatic_annotation": "not_implemented; import normalized features"}, indent=2)))
+    p.set_defaults(func=lambda args: print(json.dumps({"python": platform.python_version(), "standalone_core": "available", **{t: shutil.which(t) for t in ('mash','mob_recon','bakta','prokka','amrfinder','mob_typer')}, "automatic_annotation": "available; configure versioned local databases with --annotation-config"}, indent=2)))
+    from .importers import import_inputs, ADAPTERS
+    p = subs.add_parser('import', help='Import native tool outputs into the common validated manifest')
+    p.add_argument('adapter', choices=ADAPTERS)
+    g = p.add_mutually_exclusive_group(required=True)
+    g.add_argument('--input', type=Path)
+    g.add_argument('--samples', type=Path, help='TSV: isolate_id, input_path, optional record_ids and metadata')
+    p.add_argument('--isolate-id')
+    p.add_argument('--record-ids', help='Comma-separated explicit plasmid contig selections')
+    p.add_argument('--group-contigs', action='store_true', help='Treat all records as ONE candidate (generic/PlasBench only)')
+    p.add_argument('--tool-version', default='unreported')
+    p.add_argument('--out', type=Path, required=True)
+    p.set_defaults(func=import_inputs)
+    from .calibration import add_parser as calibration_parser
+    calibration_parser(subs)
     args = parser.parse_args()
     try:
         args.func(args)

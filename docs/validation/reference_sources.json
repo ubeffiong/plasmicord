@@ -1,0 +1,233 @@
+{
+  "kind": "real_public_reference_sequences",
+  "sources": [
+    {
+      "sample_id": "upec_ecpf5",
+      "assembly_accession": "GCF_013372425.1",
+      "bioproject": "PRJNA636382",
+      "reference_sha256": "b000a32e61b9580b887a00b421d7f36bf4c6cbf074974af6f59d409a8a457f72",
+      "sequence_report_sha256": "3c289b1170cdc7904da2f6223d9be5052cd80ce7e8bd0fe1650c8d2a27e1bd15"
+    },
+    {
+      "sample_id": "upec_ecpf7",
+      "assembly_accession": "GCF_013372405.1",
+      "bioproject": "PRJNA636382",
+      "reference_sha256": "6fb764caf99bc06956108e4adda8b986e1fb98a1720987304fa30270ebdd1a5b",
+      "sequence_report_sha256": "80e722c0ced399187a2ef33d7d5e12dca6df55efed6b4e0a6fa46d538d0d9c9e"
+    },
+    {
+      "sample_id": "upec_ecpf14",
+      "assembly_accession": "GCF_013372385.1",
+      "bioproject": "PRJNA636382",
+      "reference_sha256": "7c8eaa22e06d3121cb5006f30ad4e3b29a062360f1eb5c9c628d9f786a367034",
+      "sequence_report_sha256": "f5a339c8964a2baf05734a67881a2c31ff111f3bc6cd602af33c73b1b12dfc73"
+    },
+    {
+      "sample_id": "upec_ecpf15",
+      "assembly_accession": "GCF_013372365.1",
+      "bioproject": "PRJNA636382",
+      "reference_sha256": "bb50699658072d571f67f9acea1ae2fdd8d256409dedb707fe9f6a6407232cf1",
+      "sequence_report_sha256": "8b6a3a47b7eeb9a53905c08566aa5c71f810b1f2560e5d2d85fa546c113c0dce"
+    },
+    {
+      "sample_id": "upec_ecpf16",
+      "assembly_accession": "GCF_013372345.1",
+      "bioproject": "PRJNA636382",
+      "reference_sha256": "50f60f78b42c88baf514628545ef8e6b4bf74119b54fc73a321edfc54fa7461b",
+      "sequence_report_sha256": "e0516c8fd64a9d13c21605ce0c51234b635aade39cdf5f7056cf0c5da104f894"
+    },
+    {
+      "sample_id": "upec_ecpf18",
+      "assembly_accession": "GCF_013372325.1",
+      "bioproject": "PRJNA636382",
+      "reference_sha256": "93b6e801ff6960ffef79c6fc48ee5a1f2ab13937da5588f29f426a388df6f7ae",
+      "sequence_report_sha256": "123f7bd6bdc2f888ac0a74b59421cd319d63a126eb4492fc6beb13c30c938abf"
+    },
+    {
+      "sample_id": "upec_ecpf40",
+      "assembly_accession": "GCF_013372305.1",
+      "bioproject": "PRJNA636382",
+      "reference_sha256": "4b1c6789f782b7aaabb7a50b05d2277deea525ddd094c5821e3223e40f366a33",
+      "sequence_report_sha256": "b2aca6c84e93114ac9f51d449e07e2cd7b45e6cbb09b7771d483dc51ceec976b"
+    },
+    {
+      "sample_id": "arbank_0346",
+      "assembly_accession": "GCF_017579865.1",
+      "bioproject": "PRJNA554345",
+      "reference_sha256": "797c081f6b3597da1589245e2103dc70eb75448f354d0e3afcba01bb89ac6bd2",
+      "sequence_report_sha256": "662f3c2012cf148cc308b9e5f6fa59e2e5429bedec8caacb3e8388ba4a6b9461"
+    },
+    {
+      "sample_id": "arbank_0349",
+      "assembly_accession": "GCF_008152105.1",
+      "bioproject": "PRJNA554502",
+      "reference_sha256": "43bc08b1c00190eac12afe6d231d46d4ef2b930ead2cf5a51bf4bb201fdb6807",
+      "sequence_report_sha256": "744821f8a01fa1690e54775c9820bc2bdfe7a4f88a8e94704cd5817583376d81"
+    },
+    {
+      "sample_id": "tahini_salmonella",
+      "assembly_accession": "GCF_022162985.1",
+      "bioproject": "PRJNA802760",
+      "reference_sha256": "4bf299c802ad92e60c035920bf12eec907578327d12a574bb59daafd3fde3d15",
+      "sequence_report_sha256": "55a1bb39a082ab1084e74d6c4a92713bd338f5e568fb96a7235195a18628ec5e"
+    },
+    {
+      "sample_id": "acinetobacter_baumannii_007",
+      "assembly_accession": "GCF_052071855.1",
+      "bioproject": "PRJNA1128891",
+      "reference_sha256": "13c09c346d060c5ef576098011aaa26eb4bed2ac29fa0b7a08dbffc92f8b7c10",
+      "sequence_report_sha256": "5d6a262467be7ee2c75eb2a738971a609880d85944d1b8af0e201de9f343bd5d"
+    },
+    {
+      "sample_id": "acinetobacter_baumannii_008",
+      "assembly_accession": "GCF_052905705.1",
+      "bioproject": "PRJNA1128891",
+      "reference_sha256": "fc10094296e28138d5f46d77f610c2ac1ef714431647cffc652685f1ef078c1c",
+      "sequence_report_sha256": "d23c7c9ab64dad2404737dce9a7731b9f7d6a9b2ca08203753c9c5ce3d5b5dc4"
+    },
+    {
+      "sample_id": "acinetobacter_baumannii_009",
+      "assembly_accession": "GCF_040543095.1",
+      "bioproject": "PRJNA1128891",
+      "reference_sha256": "e1448b35a44eedae79d413cb103fb21eed75bcd8a9bea7238e068d75cc729b70",
+      "sequence_report_sha256": "f80bbc8c27deac4b185a6f00e72d396209ffb544283194b1baf56e985c6e385b"
+    },
+    {
+      "sample_id": "escherichia_coli_016",
+      "assembly_accession": "GCF_048572705.1",
+      "bioproject": "PRJNA1117783",
+      "reference_sha256": "b77da74e8bd1f1bb880784e457310879ccf98159c5611898b404c8f569fefe27",
+      "sequence_report_sha256": "3ece7852312901158d5d495beb8efd453a36c8a5505cea620e754c3faee82f6b"
+    },
+    {
+      "sample_id": "escherichia_coli_017",
+      "assembly_accession": "GCF_052063125.1",
+      "bioproject": "PRJNA1117783",
+      "reference_sha256": "53fcd1fc912d071ccfd3ac8098def68fa92d6a7ba616019b5d23500c596274f5",
+      "sequence_report_sha256": "260231e53a69ab272b54cc28465f21dbc9e88944cac1a754fbaca52002f00a0c"
+    },
+    {
+      "sample_id": "escherichia_coli_018",
+      "assembly_accession": "GCF_052884645.1",
+      "bioproject": "PRJNA1117783",
+      "reference_sha256": "3eab835dc6a27b575405e52c2de0a907ddd492cfc1bf49a468226a0298970fd1",
+      "sequence_report_sha256": "9de151a7ba4d82984a682c5da2f261fddc26d166b0f8f226430d2ee99ff33a58"
+    },
+    {
+      "sample_id": "escherichia_coli_047",
+      "assembly_accession": "GCF_050749065.1",
+      "bioproject": "PRJNA1266646",
+      "reference_sha256": "b09bdc066c1f6ae959a749a4a8dd5ea6dcc00cd5e5f7ff056492c9c3e29631d0",
+      "sequence_report_sha256": "84f55cbb16d6db3cc8ec29723387756d8e8e8ef5953ceae2f184c191f0751b5c"
+    },
+    {
+      "sample_id": "escherichia_coli_048",
+      "assembly_accession": "GCF_051136175.1",
+      "bioproject": "PRJNA1266646",
+      "reference_sha256": "f9603183ab118f46be672ef280959e59e5912e73c3e059e723ab3abfb0b5c788",
+      "sequence_report_sha256": "2d1341e18a0d62e33c4f5c245161ff9558f9ffe594484c57a78fed85048f6224"
+    },
+    {
+      "sample_id": "escherichia_coli_049",
+      "assembly_accession": "GCF_051136165.1",
+      "bioproject": "PRJNA1266646",
+      "reference_sha256": "c8a9d2907ebb68d7668afb19d9d2675d3c4d10bf42e7e072738975f7252c7f77",
+      "sequence_report_sha256": "e57a0113533d1906033c79a97590951b9a6f62eeb430063ad21511e201f492b3"
+    },
+    {
+      "sample_id": "escherichia_coli_034",
+      "assembly_accession": "GCF_052907635.1",
+      "bioproject": "PRJNA1321367",
+      "reference_sha256": "9f1a909ea81edc49ff8d250c26d92161543577017d6210ed6707bc5145fd91e3",
+      "sequence_report_sha256": "74066a53d02829ab729459e84d7a64991a97c49738c98a4c6f744802d6667c71"
+    },
+    {
+      "sample_id": "escherichia_coli_036",
+      "assembly_accession": "GCF_052938815.1",
+      "bioproject": "PRJNA1321367",
+      "reference_sha256": "0bdbde95c69f075574161461bc7840a9e031444f2fbbc353e08c595b6b3cc2b0",
+      "sequence_report_sha256": "de564a1ad7665b016439a29125b55164fd63c8d0b9e02785863ff5b46eadcc52"
+    },
+    {
+      "sample_id": "klebsiella_pneumoniae_001",
+      "assembly_accession": "GCF_001316565.3",
+      "bioproject": "PRJNA287968",
+      "reference_sha256": "1d0643130d18bd561e470aa8a41e6d91776e8a4934462d636dfdf11ad301ff4e",
+      "sequence_report_sha256": "a348fe074fad9036ec69b5ce64f77da8b8e8f6354dca18936e11bc14399c7b6a"
+    },
+    {
+      "sample_id": "klebsiella_pneumoniae_006",
+      "assembly_accession": "GCF_011065365.1",
+      "bioproject": "PRJNA503964",
+      "reference_sha256": "541c98a1a65a568032523646fd9890b9057e26b83c35f86658a78d14bac3acfe",
+      "sequence_report_sha256": "56f6df213c02095655bf1d431631c02c354ee9aed6da8f38fc04623c5dd48f06"
+    },
+    {
+      "sample_id": "klebsiella_pneumoniae_002",
+      "assembly_accession": "GCF_017161135.1",
+      "bioproject": "PRJNA593981",
+      "reference_sha256": "d3c2298077bcf4b62c24ef2ddab031a0698fbd743260c1f61b6040bcc4c48a69",
+      "sequence_report_sha256": "2ca9367de9798053a3a6b6f11422e5ab5b8d085a1b47c1711bcde050f5bb56e0"
+    },
+    {
+      "sample_id": "klebsiella_pneumoniae_003",
+      "assembly_accession": "GCF_017161155.1",
+      "bioproject": "PRJNA593981",
+      "reference_sha256": "596fb8c7ca9e0960bc339fb9a0e44c3d81118c3cfdbafd4c5e91626504103672",
+      "sequence_report_sha256": "4d90045c50170efbabdef79535d0adf5bc4a765666e178b3c124f265cb733a09"
+    },
+    {
+      "sample_id": "klebsiella_pneumoniae_004",
+      "assembly_accession": "GCF_017161485.1",
+      "bioproject": "PRJNA593981",
+      "reference_sha256": "94fc411f1c38b646ef1dcf0cf5fa7564f72d078f726bd1b02e2d846c1e08c0cd",
+      "sequence_report_sha256": "8620afb32ce15b2d02f40f64cff46fbd15822da4835f1f4bb472019351ec5724"
+    },
+    {
+      "sample_id": "salmonella_enterica_059",
+      "assembly_accession": "GCF_001359015.2",
+      "bioproject": "PRJEB3215",
+      "reference_sha256": "c08c82d6e00ac4c572ea397116f246aea559a27c143eb0dce1ada7a3caae0913",
+      "sequence_report_sha256": "51795df32211752f7c58f9ed7d1a7a6026e0529937c614beb4eea922889a93c8"
+    },
+    {
+      "sample_id": "salmonella_enterica_055",
+      "assembly_accession": "GCF_002266085.2",
+      "bioproject": "PRJNA186035",
+      "reference_sha256": "1776323aeba1d03f08a4068a520820867cee282fc86b008d5d27caf24c7cd384",
+      "sequence_report_sha256": "700f3e7933fcbc35e21ffaf0733a552375a5ed479119467c8f3e889213a36be0"
+    },
+    {
+      "sample_id": "salmonella_enterica_056",
+      "assembly_accession": "GCF_009729955.1",
+      "bioproject": "PRJNA231221",
+      "reference_sha256": "aeb0f4753978b02951b08f5d130b26bcc955a3a93ced226cddacf8ecf0a9b902",
+      "sequence_report_sha256": "a13d8feba1761e88c9b30413d8bb624c1f8d8460ebf4a3f0ec9ecbe96dc30eab"
+    },
+    {
+      "sample_id": "salmonella_enterica_057",
+      "assembly_accession": "GCF_009729975.1",
+      "bioproject": "PRJNA231221",
+      "reference_sha256": "72df621d945c651bb4bf2aa0495557cd31adfc352d32b48f36e49cb8bd509462",
+      "sequence_report_sha256": "8189ab6d8a4058260062bbdc4d4798cebcd623385d0b0dd6d9425629ad42dd29"
+    },
+    {
+      "sample_id": "salmonella_enterica_058",
+      "assembly_accession": "GCF_009730015.1",
+      "bioproject": "PRJNA231221",
+      "reference_sha256": "fa5345ffa2d874da389fee2b0a1c0507126d046b570ffd6c233bf64006025fef",
+      "sequence_report_sha256": "07059f6ea043a681bf0279d6ad9e997b6b80b29871135bb6e621187748314fd8"
+    },
+    {
+      "sample_id": "staphylococcus_aureus_015",
+      "assembly_accession": "GCF_033061535.1",
+      "bioproject": "PRJEB59926",
+      "reference_sha256": "f88273a855099212f671e9cc9b222b11e326661cf445179dd641ffb6cddca75d",
+      "sequence_report_sha256": "ffcf95aebe0614788a0a2e8ce1a8c4df9198b514af3b4c40427fc2077c456af8"
+    }
+  ],
+  "n_cohort_samples": 32,
+  "excluded_samples": [],
+  "cohort_sha256": "a54d4f7a574c85f0d1689e1294020ba0e2e7098b726a2fdc373396dfe38ad2dc",
+  "limitation": "NCBI plasmid classification is reference evidence; no transmission labels or verified closure are supplied"
+}

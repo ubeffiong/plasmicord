@@ -1,0 +1,3 @@
+plasmid_id	sequence_sha256	quality_status	classification	replicon_type	mobility_class	sequence_entropy	ambiguous_fraction	terminal_overlap_bp	graph_closure	read_breadth	mean_depth	chromosome_fraction	evidence_source	evidence_sha256	policy_version	quality_warnings
+upec_ecpf5__NZ_CP054237.1	8eee9ad3f37acc1ff73b0d51c4c42dac0110a341402d7a9f964d1287ea8dab9b	moderate_confidence	plasmid_supported	IncFIA,IncFIB,IncFII,IncFII,IncQ1	conjugative	1.9974925366318383	0.0	0	not_evaluated						1.0	
+upec_ecpf5__NZ_CP054238.1	2451fbaea3e7f12ee7aedc71b0f202e4a2eeb24d8a4367553f39e7c9384749d0	moderate_confidence	plasmid_supported	Col(MG828)	mobilizable	1.9973992682501345	0.0	0	not_evaluated						1.0	

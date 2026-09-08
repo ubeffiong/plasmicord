@@ -7,15 +7,16 @@
 **From reconstruction quality to plasmid-sharing evidence.** This standalone research
 framework groups reconstructed plasmids into sequence-defined plasmid units (PUs),
 builds isolate-sharing networks, identifies sharing across known chromosomal clusters,
-and presents imported functional cargo alongside provenance and quality warnings.
+and presents automatically detected or imported functional cargo alongside provenance and quality evidence.
 
 PlasBench asks **“How trustworthy is this reconstruction?”** This project asks
 **“Which plasmid units and functions are observed across isolates, places and dates?”**
 It does not install, import or call PlasBench. Any reconstruction workflow can supply
 the same FASTA-plus-manifest contract. See [project positioning](docs/POSITIONING.md).
 
-**Status: v0.2.0 research prototype.** A sharing link is not proof of direct transmission.
-Automated biological annotation and calibrated quality grading remain future work.
+**Status: v0.3.0 research prototype.** A sharing link is not proof of direct transmission.
+Automatic annotation, biological evidence grading, native imports and study-specific
+calibration are implemented. Quality tiers remain heuristic research rules.
 See the [review and gap assessment](docs/REVIEW.md) for implemented versus planned features.
 
 ## Run immediately
@@ -74,15 +75,23 @@ plasmicord run --manifest manifest.tsv --metadata metadata.tsv \
 confirm prioritized links using sequence alignment, assembly evidence and epidemiology.
 
 Use `--mode longread`, `hybrid`, or `plasbench` to describe the source. These modes
-all use the same normalized manifest and validation gate; they are not automatic
-parsers for those tools' native output directories. PlasBench results must be selected
-and mapped to this contract just like outputs from MOB-recon, Flye or Unicycler.
+all use the same normalized manifest and validation gate. `plasmicord import` adapts
+native MOB-recon, Flye, Unicycler, PlasBench and generic FASTA outputs;
+see [native imports](docs/IMPORTS.md).
 Raw FASTQ is rejected; assemble, polish and identify plasmid candidates upstream.
 
 Add `--features functional_features.tsv` for functional cargo reporting. The
 [input contract](docs/INPUT_CONTRACT.md) defines coordinates, provenance, quality flags,
 headline ARG rules and annotation limitations. Without annotations, the report says
 **not evaluated**, rather than claiming genes are absent.
+
+For automatic annotation, add `--annotation-config annotation.json` with configured
+Prokka/Bakta, AMRFinderPlus and MOB-typer databases. See [annotation and caching](docs/ANNOTATION.md),
+[biological quality](docs/QUALITY.md), and [the reusable component](shared_annotation/README.md).
+
+`plasmicord calibrate` fits training labels and evaluates a separate holdout, rejecting
+group/isolate/sequence leakage. See [calibration](docs/CALIBRATION.md) and
+[public-reference validation](docs/validation/README.md). Alignment agreement does not establish transmission.
 
 ## What the final output looks like
 
@@ -107,6 +116,9 @@ the report. Browser Print can produce a static PDF; retain HTML for interactivit
 | `REPORT.html`, `REPORT.md` | Interactive final report and plain-text narrative |
 | `report_data.json` | Machine-readable report payload |
 | `validation.tsv`, `plasmid_index.tsv` | Quality/provenance records and accepted candidates |
+| `biological_quality.tsv` | Identity, sequence, marker, graph and supplied read/contamination evidence |
+| `annotation_status.tsv`, `annotation_provenance.json` | Per-candidate stage completion, versions and cache provenance |
+| `mobility_typing.json`, `plasbench_proteins.tsv` | Aggregate typing and reusable protein-coordinate export |
 | `plasmids/`, `metadata.tsv` | Normalized sequences and metadata used in the run |
 | `plasmid_matrix.tsv`, `plasmid_clusters.tsv` | Distances and run-local PU assignments |
 | `network.graphml` | Network for Cytoscape or Gephi |
@@ -124,6 +136,7 @@ reconstruction and the supplied conda environment target Linux/WSL.
 
 ```sh
 python -m unittest discover -s test -p test_standalone.py -v
+python -m unittest discover -s test -p test_gap_workflows.py -v
 python test/test_clustering.py
 python test/test_network_discordance.py
 python plasmicord.py demo --out results_check

@@ -1,0 +1,33 @@
+isolate_id	organism	bioproject	source_study	assembly_accession
+upec_ecpf5	Escherichia coli	PRJNA636382	Snyder_2020_recurrent_UTI	GCF_013372425.1
+upec_ecpf7	Escherichia coli	PRJNA636382	Snyder_2020_recurrent_UTI	GCF_013372405.1
+upec_ecpf14	Escherichia coli	PRJNA636382	Snyder_2020_recurrent_UTI	GCF_013372385.1
+upec_ecpf15	Escherichia coli	PRJNA636382	Snyder_2020_recurrent_UTI	GCF_013372365.1
+upec_ecpf16	Escherichia coli	PRJNA636382	Snyder_2020_recurrent_UTI	GCF_013372345.1
+upec_ecpf18	Escherichia coli	PRJNA636382	Snyder_2020_recurrent_UTI	GCF_013372325.1
+upec_ecpf40	Escherichia coli	PRJNA636382	Snyder_2020_recurrent_UTI	GCF_013372305.1
+arbank_0346	Escherichia coli	PRJNA554345	AR_Bank_0346_2021	GCF_017579865.1
+arbank_0349	Escherichia coli	PRJNA554502	AR_Bank_0349_2019	GCF_008152105.1
+tahini_salmonella	Salmonella enterica subsp. enterica serovar Tennessee	PRJNA802760	Tahini_Salmonella_2022	GCF_022162985.1
+acinetobacter_baumannii_007	Acinetobacter baumannii	PRJNA1128891		GCF_052071855.1
+acinetobacter_baumannii_008	Acinetobacter baumannii	PRJNA1128891		GCF_052905705.1
+acinetobacter_baumannii_009	Acinetobacter baumannii	PRJNA1128891		GCF_040543095.1
+escherichia_coli_016	Escherichia coli	PRJNA1117783		GCF_048572705.1
+escherichia_coli_017	Escherichia coli	PRJNA1117783		GCF_052063125.1
+escherichia_coli_018	Escherichia coli	PRJNA1117783		GCF_052884645.1
+escherichia_coli_047	Escherichia coli	PRJNA1266646		GCF_050749065.1
+escherichia_coli_048	Escherichia coli	PRJNA1266646		GCF_051136175.1
+escherichia_coli_049	Escherichia coli	PRJNA1266646		GCF_051136165.1
+escherichia_coli_034	Escherichia coli	PRJNA1321367		GCF_052907635.1
+escherichia_coli_036	Escherichia coli	PRJNA1321367		GCF_052938815.1
+klebsiella_pneumoniae_001	Klebsiella pneumoniae	PRJNA287968		GCF_001316565.3
+klebsiella_pneumoniae_006	Klebsiella pneumoniae	PRJNA503964		GCF_011065365.1
+klebsiella_pneumoniae_002	Klebsiella pneumoniae	PRJNA593981		GCF_017161135.1
+klebsiella_pneumoniae_003	Klebsiella pneumoniae	PRJNA593981		GCF_017161155.1
+klebsiella_pneumoniae_004	Klebsiella pneumoniae	PRJNA593981		GCF_017161485.1
+salmonella_enterica_059	Salmonella enterica	PRJEB3215		GCF_001359015.2
+salmonella_enterica_055	Salmonella enterica	PRJNA186035		GCF_002266085.2
+salmonella_enterica_056	Salmonella enterica	PRJNA231221		GCF_009729955.1
+salmonella_enterica_057	Salmonella enterica	PRJNA231221		GCF_009729975.1
+salmonella_enterica_058	Salmonella enterica	PRJNA231221		GCF_009730015.1
+staphylococcus_aureus_015	Staphylococcus aureus	PRJEB59926		GCF_033061535.1

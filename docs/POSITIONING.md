@@ -1,49 +1,24 @@
-# PlasmiCord: from PlasBench to plasmid-sharing investigation
+# PlasmiCord: continuing beyond reconstruction benchmarking
 
 **PlasmiCord: A Chromosome-Aware Plasmid Transmission and Surveillance Framework**
 
 *Connecting plasmid sharing with chromosomal epidemiology.*
 
-PlasBench v0.2.7, reviewed locally for this work, benchmarks reconstruction tools
-against reference truth and offers candidate evaluation and protein-coordinate
-recovery views. Project 2 continues the scientific programme at cohort level.
+PlasBench evaluates reconstruction against reference truth and shows protein-coordinate recovery. PlasmiCord continues at cohort level: sequence-defined plasmid units, isolate sharing, chromosome-cluster discordance and functional cargo across available metadata.
 
 | Question | PlasBench | PlasmiCord |
 |---|---|---|
-| Which method reconstructed a reference most accurately? | Primary | Out of scope |
-| Were ARGs/proteins and their reference context recovered? | Reconstruction evidence | Imported quality context only |
-| Which isolates carry related plasmid candidates? | Out of scope | Sequence-defined units and network |
-| Which units link distinct chromosome clusters? | Out of scope | Discordance evidence |
-| What functional cargo occurs across isolates, places and dates? | Supporting annotation | Primary operational report |
-| Is direct person-to-person transmission proven? | No | No |
+| Which method recovered a reference accurately? | Primary | Upstream context |
+| Were genes and reference coordinates recovered? | Reconstruction evidence | Source context |
+| Which isolates carry related plasmid candidates? | Outside main scope | Units and sharing network |
+| Do units connect distinct chromosome clusters? | Outside main scope | Discordance evidence |
+| What cargo occurs across isolates? | Supporting annotation | Main functional report |
+| Is direct transmission proven? | No | No |
 
-Lessons carried forward: an offline evidence report, explicit unmeasured states,
-versioned provenance, inspectable gene coordinates, reproducible synthetic fixtures,
-downloadable tables and restrained interpretation. No PlasBench code, assets, datasets,
-dependencies or sibling filesystem paths are required at runtime.
+Lessons retained are inspectable coordinates, offline evidence reports, versioned provenance, explicit unevaluated states and reusable tables. No PlasBench application, import, execution or sibling directory is required.
 
-The stable boundary is **plasmid candidate FASTA + isolate mapping + available
-provenance**, optionally accompanied by normalized annotations. MOB-recon, Platon,
-plasmidSPAdes, Flye, Unicycler, curated references and future workflows can supply it.
-Native directory adapters are a separate future convenience layer. Assembled ONT,
-PacBio and hybrid candidates use this same boundary; raw reads require upstream QC,
-assembly, polishing and plasmid identification.
+The common boundary is candidate FASTA, isolate mapping and available provenance. Native adapters now support MOB-recon, Flye, Unicycler and selected PlasBench outputs. Curated references and other tools can supply the generic contract. Assembly and polishing remain upstream.
 
-The pasted design calls for a shared annotation engine/viewer across projects. This
-release provides an independent normalized functional contract and Project 2 viewer;
-it does not yet extract PlasBench's annotation code into a shared versioned package.
-That should be a separately tested reusable dependency, not a runtime dependency on
-the PlasBench application. PlasBench itself was read for comparison and not modified.
+The separately buildable [plasmid-annotation-core](../shared_annotation/README.md) supplies versioned local annotation, normalized coordinates, an auditable cache and a PlasBench-compatible protein export. Both applications can consume this independent component. PlasBench itself has not been modified to use it automatically, and its recovery viewer remains separate.
 
-## Next-level scientific work
-
-1. Common evidence-based biological gate: classification, contamination, circularity,
-   read/assembly-graph support and source-specific quality evidence.
-2. Versioned gene/AMR/replicon/mobility annotation profiles and cache keys incorporating
-   sequence, engine version, database version and parameters.
-3. Alignment-backed confirmation of prioritized links, containment/structural changes,
-   comparable chromosome typing and epidemiological review.
-4. Orthology, conserved/accessory cargo and module completeness from defined required
-   components, with explicit annotation-coverage denominators.
-5. Real-cohort validation, threshold calibration, performance measurement and external
-   reproducibility before surveillance deployment.
+This release adds biological evidence rules and public-reference threshold calibration. Next scientific steps include independently reviewed transmission cohorts, comparable chromosome typing, empirical quality-tier validation, structural confirmation, orthology/module analysis and surveillance-scale performance evaluation. See [the review](REVIEW.md).

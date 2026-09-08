@@ -1,0 +1,158 @@
+[
+  {
+    "stage": "genes",
+    "engine": "prokka",
+    "engine_version": "prokka 1.15.6",
+    "database_version": "prokka-1.15.6-bundled",
+    "database_sha256": "4f5564a48e546a688dc6cbe6774e72dae8040ebe427ce221f4d46a09f33700dc",
+    "sequence_sha256": "8eee9ad3f37acc1ff73b0d51c4c42dac0110a341402d7a9f964d1287ea8dab9b",
+    "config": {
+      "engine": "prokka",
+      "database_version": "prokka-1.15.6-bundled"
+    },
+    "threads": 4,
+    "shared_component_version": "0.1.0",
+    "schema_version": "1.0",
+    "status": "complete",
+    "cache": "reused",
+    "cache_key": "e69e24509710333e7288b4c803d681415bdbebf83dc14b14005319c232028a53",
+    "n_features": 151,
+    "raw_output_sha256": "bec2d8ebea3215647bcabd01d2292de7755f9963e5bf9e4a28c28362f0aa5218",
+    "command": [
+      "prokka",
+      "(see engine implementation; original raw-output hash retained)"
+    ],
+    "plasmid_id": "upec_ecpf5__NZ_CP054237.1",
+    "publication_note": "Machine-specific executable, database and output paths removed; versions, sequence/database/output digests and thresholds retained."
+  },
+  {
+    "stage": "amr",
+    "engine": "amrfinder",
+    "engine_version": "4.2.7",
+    "database_version": "2026-08-07.1",
+    "database_sha256": "7e98da68c02ce4243032c9c27f3deef723ce67bf30f4ad0bed3b60efec7efe69",
+    "sequence_sha256": "8eee9ad3f37acc1ff73b0d51c4c42dac0110a341402d7a9f964d1287ea8dab9b",
+    "config": {
+      "engine": "amrfinder",
+      "database_version": "2026-08-07.1"
+    },
+    "threads": 4,
+    "shared_component_version": "0.1.0",
+    "schema_version": "1.0",
+    "status": "complete",
+    "cache": "reused",
+    "cache_key": "8b8ccd31f200a0aa6797fec75b6fe1705cfebd4b84a1c5821cfae756d3b349f0",
+    "n_features": 12,
+    "raw_output_sha256": "1fd27b45e7ee94238f404430496870e03cf4ac8a75743b797d73694d78f303ca",
+    "command": [
+      "amrfinder",
+      "(see engine implementation; original raw-output hash retained)"
+    ],
+    "plasmid_id": "upec_ecpf5__NZ_CP054237.1",
+    "publication_note": "Machine-specific executable, database and output paths removed; versions, sequence/database/output digests and thresholds retained."
+  },
+  {
+    "stage": "mobility",
+    "engine": "mob_typer",
+    "engine_version": "mob_typer 3.1.9",
+    "database_version": "locally_initialized-content-fingerprinted",
+    "database_sha256": "e72f6c9e5462fb1035b0e764e136cc6d4b523b62eb5db3b6a98d62ec8878d939",
+    "sequence_sha256": "8eee9ad3f37acc1ff73b0d51c4c42dac0110a341402d7a9f964d1287ea8dab9b",
+    "config": {
+      "engine": "mob_typer",
+      "database_version": "locally_initialized-content-fingerprinted"
+    },
+    "threads": 4,
+    "shared_component_version": "0.1.0",
+    "schema_version": "1.0",
+    "status": "complete",
+    "cache": "reused",
+    "cache_key": "6f37fe3bc4d93217f60c77a9b15c55cbe0e31bb7a80ad47b358ccc963ae948dc",
+    "n_features": 0,
+    "raw_output_sha256": "26504cb440c8d8a16cb79c117df34f251aab736a3d52eada158451cc3924dd70",
+    "command": [
+      "mob_typer",
+      "(see engine implementation; original raw-output hash retained)"
+    ],
+    "plasmid_id": "upec_ecpf5__NZ_CP054237.1",
+    "publication_note": "Machine-specific executable, database and output paths removed; versions, sequence/database/output digests and thresholds retained."
+  },
+  {
+    "stage": "genes",
+    "engine": "prokka",
+    "engine_version": "prokka 1.15.6",
+    "database_version": "prokka-1.15.6-bundled",
+    "database_sha256": "4f5564a48e546a688dc6cbe6774e72dae8040ebe427ce221f4d46a09f33700dc",
+    "sequence_sha256": "2451fbaea3e7f12ee7aedc71b0f202e4a2eeb24d8a4367553f39e7c9384749d0",
+    "config": {
+      "engine": "prokka",
+      "database_version": "prokka-1.15.6-bundled"
+    },
+    "threads": 4,
+    "shared_component_version": "0.1.0",
+    "schema_version": "1.0",
+    "status": "complete",
+    "cache": "reused",
+    "cache_key": "a5d455e691a1b511f95a236b94636f83b84d127bcd4f104824177576c763ff63",
+    "n_features": 0,
+    "raw_output_sha256": "6ae509aa388b8c0710e5b4ce87cdd9a98830a7b9182a4a6a24effbcd93d303cc",
+    "command": [
+      "prokka",
+      "(see engine implementation; original raw-output hash retained)"
+    ],
+    "plasmid_id": "upec_ecpf5__NZ_CP054238.1",
+    "publication_note": "Machine-specific executable, database and output paths removed; versions, sequence/database/output digests and thresholds retained."
+  },
+  {
+    "stage": "amr",
+    "engine": "amrfinder",
+    "engine_version": "4.2.7",
+    "database_version": "2026-08-07.1",
+    "database_sha256": "7e98da68c02ce4243032c9c27f3deef723ce67bf30f4ad0bed3b60efec7efe69",
+    "sequence_sha256": "2451fbaea3e7f12ee7aedc71b0f202e4a2eeb24d8a4367553f39e7c9384749d0",
+    "config": {
+      "engine": "amrfinder",
+      "database_version": "2026-08-07.1"
+    },
+    "threads": 4,
+    "shared_component_version": "0.1.0",
+    "schema_version": "1.0",
+    "status": "complete",
+    "cache": "reused",
+    "cache_key": "5bedc79295c66a346f947211094a29b893a7b985304fde3205531c00f9eecf8b",
+    "n_features": 0,
+    "raw_output_sha256": "fdfec5f7924367729493b9a91622ca6a85a08f1c8cb1f3e5a6f54a3aa8bd9078",
+    "command": [
+      "amrfinder",
+      "(see engine implementation; original raw-output hash retained)"
+    ],
+    "plasmid_id": "upec_ecpf5__NZ_CP054238.1",
+    "publication_note": "Machine-specific executable, database and output paths removed; versions, sequence/database/output digests and thresholds retained."
+  },
+  {
+    "stage": "mobility",
+    "engine": "mob_typer",
+    "engine_version": "mob_typer 3.1.9",
+    "database_version": "locally_initialized-content-fingerprinted",
+    "database_sha256": "e72f6c9e5462fb1035b0e764e136cc6d4b523b62eb5db3b6a98d62ec8878d939",
+    "sequence_sha256": "2451fbaea3e7f12ee7aedc71b0f202e4a2eeb24d8a4367553f39e7c9384749d0",
+    "config": {
+      "engine": "mob_typer",
+      "database_version": "locally_initialized-content-fingerprinted"
+    },
+    "threads": 4,
+    "shared_component_version": "0.1.0",
+    "schema_version": "1.0",
+    "status": "complete",
+    "cache": "reused",
+    "cache_key": "5e15a3e0c76e9f2968059dabf57090926783bfebb0ddc263451406bb1485eaed",
+    "n_features": 0,
+    "raw_output_sha256": "bc9e3d6589e42e55aa1a8fbb35c8a45ceec4c512e640a9b62203bd9f7f6883b2",
+    "command": [
+      "mob_typer",
+      "(see engine implementation; original raw-output hash retained)"
+    ],
+    "plasmid_id": "upec_ecpf5__NZ_CP054238.1",
+    "publication_note": "Machine-specific executable, database and output paths removed; versions, sequence/database/output digests and thresholds retained."
+  }
+]

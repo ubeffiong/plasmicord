@@ -1,0 +1,20 @@
+{
+  "framework_version": "0.3.0",
+  "status": "complete",
+  "distance_engine": "mash",
+  "threshold": 0.01,
+  "linkage": "complete",
+  "k": 21,
+  "sketch_size": 10000,
+  "mash_version": "2.3",
+  "n_isolates": 32,
+  "n_plasmids": 81,
+  "n_units": 63,
+  "publication_note": "Portable calibration inputs: index reduced to IDs and sequence digests; original run hashes retained below. Raw sequences are obtainable by reference accession.",
+  "original_run_sha256": "bda8b976963189bdc21b410e2414815a4fc6271a2097838ae9b945c8e3a9b073",
+  "original_index_sha256": "cf203394b11cbfb1ae3b12297970741b401e004f6a4a95d8d512d1be248351c8",
+  "output_sha256": {
+    "plasmid_matrix.tsv": "edc1698b64c01c1592c2e21f5a2c4cf9a8281dd184d5de07fd831e91c3270f88",
+    "plasmid_index.tsv": "0bc1a8eb648044f63841df817adcf905d2eaafdd89fa012d985bbffe6232b7bc"
+  }
+}

@@ -1,0 +1,46 @@
+<!doctype html><meta charset="utf-8"><title>PlasmiCord calibration</title><style>body{font:16px/1.6 system-ui;max-width:1000px;margin:40px auto;padding:20px}pre{white-space:pre-wrap}</style><h1>PlasmiCord threshold calibration</h1><pre># PlasmiCord threshold calibration
+
+Status: **evaluated**
+
+Cohort: real; target: plasmid_sequence_relatedness.
+
+Selected threshold: 0.001.
+
+Sequence similarity and reference alignment agreement do not validate direct transmission. Pair counts are correlated within groups; no population confidence interval is claimed.
+
+Training and validation do not share candidate IDs, isolate IDs, sequence checksums or groups.
+
+{
+  &quot;schema_version&quot;: &quot;1.0&quot;,
+  &quot;status&quot;: &quot;evaluated&quot;,
+  &quot;cohort_kind&quot;: &quot;real&quot;,
+  &quot;selected_threshold&quot;: 0.001,
+  &quot;distance_engine&quot;: &quot;mash&quot;,
+  &quot;linkage&quot;: &quot;complete&quot;,
+  &quot;target&quot;: &quot;plasmid_sequence_relatedness&quot;,
+  &quot;min_groups_per_split&quot;: 3,
+  &quot;label_evidence_types&quot;: [
+    &quot;independent_alignment&quot;
+  ],
+  &quot;independent_groups&quot;: {
+    &quot;train&quot;: 4,
+    &quot;validation&quot;: 3
+  },
+  &quot;n_pairs&quot;: {
+    &quot;train&quot;: 154,
+    &quot;validation&quot;: 120
+  },
+  &quot;n_uncertain&quot;: 15,
+  &quot;matrix_sha256&quot;: &quot;edc1698b64c01c1592c2e21f5a2c4cf9a8281dd184d5de07fd831e91c3270f88&quot;,
+  &quot;index_sha256&quot;: &quot;0bc1a8eb648044f63841df817adcf905d2eaafdd89fa012d985bbffe6232b7bc&quot;,
+  &quot;labels_sha256&quot;: &quot;f2fea136a1270482b90ccf13591e8d80e4b6e9f7ab0a0cb9247ec4e60eebc64e&quot;,
+  &quot;source_run_sha256&quot;: &quot;256f22e8349964eade93ff606a3fbd3f406843b5ce346f986b8933361ef10f0b&quot;,
+  &quot;source_parameters&quot;: {
+    &quot;k&quot;: 21,
+    &quot;sketch_size&quot;: 10000,
+    &quot;mash_version&quot;: &quot;2.3&quot;
+  },
+  &quot;engine_provenance&quot;: &quot;source_run_verified&quot;,
+  &quot;selection_rule&quot;: &quot;maximize training balanced accuracy, then F1, then smallest threshold&quot;,
+  &quot;limitation&quot;: &quot;Sequence similarity and reference alignment agreement do not validate direct transmission. Pair counts are correlated within groups; no population confidence interval is claimed.&quot;
+}</pre><p><a href="calibration_metrics.tsv">Metrics TSV</a> · <a href="calibration.json">Provenance JSON</a></p><h2>Training sweep and selected holdout result</h2><table cellpadding="8"><tr><th>split</th><th>threshold</th><th>tp</th><th>fp</th><th>fn</th><th>tn</th><th>precision</th><th>recall</th><th>balanced_accuracy</th></tr><tr><td>train</td><td>0.0</td><td>2</td><td>0</td><td>3</td><td>149</td><td>1.0</td><td>0.4</td><td>0.7</td></tr><tr><td>train</td><td>0.001</td><td>5</td><td>0</td><td>0</td><td>149</td><td>1.0</td><td>1.0</td><td>1.0</td></tr><tr><td>train</td><td>0.002</td><td>5</td><td>0</td><td>0</td><td>149</td><td>1.0</td><td>1.0</td><td>1.0</td></tr><tr><td>train</td><td>0.005</td><td>5</td><td>0</td><td>0</td><td>149</td><td>1.0</td><td>1.0</td><td>1.0</td></tr><tr><td>train</td><td>0.01</td><td>5</td><td>0</td><td>0</td><td>149</td><td>1.0</td><td>1.0</td><td>1.0</td></tr><tr><td>train</td><td>0.02</td><td>5</td><td>0</td><td>0</td><td>149</td><td>1.0</td><td>1.0</td><td>1.0</td></tr><tr><td>train</td><td>0.05</td><td>5</td><td>3</td><td>0</td><td>146</td><td>0.625</td><td>1.0</td><td>0.9899328859060403</td></tr><tr><td>validation</td><td>0.001</td><td>9</td><td>0</td><td>0</td><td>111</td><td>1.0</td><td>1.0</td><td>1.0</td></tr></table>

@@ -9,7 +9,7 @@ MODES = ("precomputed", "longread", "hybrid", "plasbench")
 CIRCULARITY = {"confirmed", "assembly_supported", "tool_reported", "linear", "unresolved"}
 QUALITY = {"high_confidence", "moderate_confidence", "low_confidence", "uncertain", "rejected"}
 INDEX_FIELDS = "isolate_id plasmid_id fasta_path source_type source_tool source_tool_version source_sequence_id sequencing_technology assembly_method polishing_method circularity_status declared_quality_status quality_status quality_warnings sequence_sha256 length n_contigs duplicate_of annotation_path reads_path assembly_graph_path".split()
-FEATURE_FIELDS = "isolate_id plasmid_id plasmid_unit feature_id gene_symbol product_name feature_type start end strand functional_category functional_subcategory amr_gene drug_class resistance_mechanism replicon_type mobility_function ko_id kegg_module cog_category go_terms ec_number pfam_ids identity coverage hit_class annotation_confidence annotation_engine database_name database_version sequence_sha256 source_sequence_id headline_eligible".split()
+FEATURE_FIELDS = "isolate_id plasmid_id plasmid_unit feature_id gene_symbol product_name feature_type start end strand functional_category functional_subcategory amr_gene drug_class resistance_mechanism replicon_type mobility_function ko_id kegg_module cog_category go_terms ec_number pfam_ids identity coverage hit_class annotation_confidence annotation_engine annotation_engine_version database_name database_version sequence_sha256 source_sequence_id headline_eligible detection_method reference_accession dbxref annotation_scope".split()
 
 
 def read_tsv(path, required=()):
@@ -99,6 +99,10 @@ def validate_manifest(path, meta, mode, min_length=200):
         if not fasta.is_absolute():
             fasta = Path(path).resolve().parent / fasta
         records = fasta_records(fasta)
+        for optional_path in ('assembly_graph_path', 'annotation_path', 'reads_path'):
+            if row.get(optional_path):
+                p = Path(row[optional_path])
+                row[optional_path] = str(p if p.is_absolute() else Path(path).resolve().parent / p)
         sequences[pid] = records
         # Sequence-only digest preserves record boundaries and ignores identifiers/wrapping.
         digest = hashlib.sha256("\n".join(seq for _, seq in records).encode()).hexdigest()

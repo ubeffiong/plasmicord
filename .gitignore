@@ -6,6 +6,7 @@ venv/
 build/
 dist/
 results*/
+annotation_cache/
 data/
 logs/
 .env

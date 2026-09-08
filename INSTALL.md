@@ -34,8 +34,9 @@ plasmicord demo --engine mash --out results_mash_demo
 The environment includes Mash, MOB-suite and Python. MOB-suite and its databases are
 only needed to reconstruct candidates from assemblies, not for imported FASTA analysis.
 Database installation can be substantial; initialize and version the database according
-to the installed MOB-suite release before reconstruction. The standalone core does not
-download databases or invoke annotators automatically.
+to the installed MOB-suite release before reconstruction. The core does not download
+databases during analysis. An explicit configuration runs the installed annotators;
+see [automatic annotation](docs/ANNOTATION.md).
 
 ```sh
 plasmicord run --manifest manifest.tsv --metadata metadata.tsv \
@@ -52,8 +53,8 @@ value. Use `--engine kmer` explicitly for small inputs if Mash is unavailable.
   preserved so an interrupted run cannot silently mix with an older result.
 - Unknown chromosome clusters: sharing networks remain available; those isolates are
   excluded from cross-cluster counts.
-- Missing functional rows: supply the normalized feature TSV with `--features`.
-  The core does not discover genes itself.
+- Missing functional rows: configure `--annotation-config` or import `--features`.
+  Inspect stage completion before interpreting zero hits.
 - Rejected short sequences: inspect `validation.tsv` and the study's `--min-length`.
 - Broken links after sharing HTML: distribute the whole results folder for downloads.
 - Legacy extraction failure: inspect the MOB log and resolve it. The shell pipeline

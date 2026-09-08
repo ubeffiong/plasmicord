@@ -1,0 +1,22 @@
+{
+  "genes": {
+    "engine": "prokka",
+    "executable": "prokka",
+    "database": "/path/to/prokka/db",
+    "database_version": "REPLACE_WITH_INSTALLED_DATABASE_RELEASE"
+  },
+  "amr": {
+    "engine": "amrfinder",
+    "executable": "amrfinder",
+    "database": "/path/to/amrfinder/database-release",
+    "database_version": "REPLACE_WITH_INSTALLED_DATABASE_RELEASE",
+    "min_identity": 90,
+    "min_coverage": 90
+  },
+  "mobility": {
+    "engine": "mob_typer",
+    "executable": "mob_typer",
+    "database": "/path/to/mob_suite/databases",
+    "database_version": "REPLACE_WITH_INSTALLED_DATABASE_RELEASE"
+  }
+}

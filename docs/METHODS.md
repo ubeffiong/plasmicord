@@ -53,12 +53,25 @@ upstream namespace normalization.
 
 ## Functional cargo
 
-The core validates and imports normalized features; it does not run gene calling,
-specialized AMR detection or orthology assignment. Gene tracks show supplied coordinates
-and strand. Headline rules exclude loose/low-confidence/incomplete-provenance ARG calls.
+The core validates imported features or invokes configured Prokka/Bakta gene calling,
+AMRFinderPlus and MOB-typer. Gene tracks retain original-contig coordinates and strand.
+Headline rules exclude loose/low-confidence/incomplete-provenance ARG calls; automatic
+AMRFinder reporting also excludes partial, point-mutation and plus-scope hits.
 Functional prevalence deduplicates candidate carriers per label/category and uses all
 accepted candidates in the unit as denominator. It does not establish orthology,
 biological gene absence, validated core/accessory genes or complete metabolic modules.
+Caller-completion counts provide evaluation coverage. See [annotation](ANNOTATION.md).
+
+## Biological evidence and calibration
+
+The [quality policy](QUALITY.md) combines automatic sequence/marker/simple-graph checks
+with checksum-linked external identity/read/contamination evidence. Tiers are research
+rules, not calibrated probabilities. Unknown novel plasmids remain eligible with warnings.
+
+[Calibration](CALIBRATION.md) selects a threshold on training labels and scores a
+separate held-out partition. Groups, isolates and exact sequences cannot span splits.
+The public-reference experiment uses independent alignment comparisons, not reviewed
+transmission labels. Its parameters and limited validation scope are recorded explicitly.
 
 ## Reproducibility and limits
 
@@ -69,5 +82,5 @@ underlying evidence. No PlasBench installation is required.
 
 Distance storage is quadratic; the exact fallback is capped at 200 candidates.
 Complete linkage and dense isolate-pair enumeration can be expensive. Scalable
-candidate screening, epidemiological inference, alignment-based confirmation,
-biological QC, automatic annotation and real-cohort calibration remain open work.
+candidate screening, epidemiological inference, structural confirmation, empirical
+quality-tier validation and external-population calibration remain open work.

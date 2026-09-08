@@ -1,0 +1,152 @@
+plasmid_id	isolate_id	sequence_id	start	end	strand	feature_id	gene	product	category	dbxref	source	version	confidence
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	0	978	+	prokka:GKJMHJIH_00001	repB	RepFIB replication protein A	replication		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	1262	2003	-	prokka:GKJMHJIH_00002	xerC_1	Tyrosine recombinase XerC	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	2521	2779	+	prokka:GKJMHJIH_00003		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	2734	2917	-	prokka:GKJMHJIH_00004		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	3448	4618	+	prokka:GKJMHJIH_00005		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	4813	5107	-	prokka:GKJMHJIH_00006		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	5212	5488	-	prokka:GKJMHJIH_00007		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	5487	5766	-	prokka:GKJMHJIH_00008		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	6376	7129	+	prokka:GKJMHJIH_00009	rhmR	putative HTH-type transcriptional regulator RhmR	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	7174	8140	-	prokka:GKJMHJIH_00010	kdgT	2-keto-3-deoxygluconate permease	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	8172	8553	-	prokka:GKJMHJIH_00011	ridA	2-iminobutanoate/2-iminopropanoate deaminase	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	8577	9468	-	prokka:GKJMHJIH_00012	yjhH	putative 2-dehydro-3-deoxy-D-pentonate aldolase YjhH	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	9700	9895	-	prokka:GKJMHJIH_00013		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	10081	10309	+	prokka:GKJMHJIH_00014	ahr	Aldehyde reductase Ahr	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	10451	11318	+	prokka:GKJMHJIH_00015	ugpA	sn-glycerol-3-phosphate transport system permease protein UgpA	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	11307	12195	+	prokka:GKJMHJIH_00016	ngcG	Diacetylchitobiose uptake system permease protein NgcG	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	12205	13030	+	prokka:GKJMHJIH_00017	gpdQ	Glycerophosphodiester phosphodiesterase GpdQ	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	13035	14109	+	prokka:GKJMHJIH_00018	ugpC	sn-glycerol-3-phosphate import ATP-binding protein UgpC	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	14101	15412	+	prokka:GKJMHJIH_00019	ugpB	sn-glycerol-3-phosphate-binding periplasmic protein UgpB	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	15470	15836	-	prokka:GKJMHJIH_00020	tnpA	Transposase for transposon Tn5	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	15855	16029	-	prokka:GKJMHJIH_00021		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	16110	16557	-	prokka:GKJMHJIH_00022		IS3 family transposase IS629	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	16674	18198	-	prokka:GKJMHJIH_00023		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	18611	18863	+	prokka:GKJMHJIH_00024		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	18789	19269	-	prokka:GKJMHJIH_00025	insK	Putative transposase InsK for insertion sequence element IS150	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	19601	20306	+	prokka:GKJMHJIH_00026		IS6 family transposase IS26	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	20339	20894	-	prokka:GKJMHJIH_00027	agp	Glucose-1-phosphatase	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	21015	21501	-	prokka:GKJMHJIH_00028		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	21525	22011	-	prokka:GKJMHJIH_00029	resA_1	Thiol-disulfide oxidoreductase ResA	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	21997	22693	-	prokka:GKJMHJIH_00030	lolD	Lipoprotein-releasing system ATP-binding protein LolD	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	22697	23828	-	prokka:GKJMHJIH_00031		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	23817	25101	-	prokka:GKJMHJIH_00032		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	25103	26483	-	prokka:GKJMHJIH_00033		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	26586	27114	-	prokka:GKJMHJIH_00034		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	27154	29041	-	prokka:GKJMHJIH_00035		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	29387	30149	-	prokka:GKJMHJIH_00036	nqrC	Na(+)-translocating NADH-quinone reductase subunit C	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	30385	30934	-	prokka:GKJMHJIH_00037	resA_2	Thiol-disulfide oxidoreductase ResA	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	30939	31644	-	prokka:GKJMHJIH_00038		IS6 family transposase IS26	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	31713	32046	+	prokka:GKJMHJIH_00039	tnpR	Transposon Tn3 resolvase	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	32228	33089	+	prokka:GKJMHJIH_00040	bla	Beta-lactamase TEM	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	33238	33640	+	prokka:GKJMHJIH_00041		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	33686	34391	+	prokka:GKJMHJIH_00042		IS6 family transposase IS26	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	34452	35160	+	prokka:GKJMHJIH_00043	repA	Regulatory protein RepA	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	35146	35998	+	prokka:GKJMHJIH_00044		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	36305	37121	+	prokka:GKJMHJIH_00045	sul2	Dihydropteroate synthase type-2	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	37181	37985	+	prokka:GKJMHJIH_00046	neo	Aminoglycoside 3'-phosphotransferase	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	37984	38821	+	prokka:GKJMHJIH_00047		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	39238	39943	-	prokka:GKJMHJIH_00048		IS6 family transposase IS26	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	39989	40298	-	prokka:GKJMHJIH_00049		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	40454	40928	+	prokka:GKJMHJIH_00050	dhfrI	Dihydrofolate reductase type 1	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	41020	41812	+	prokka:GKJMHJIH_00051	aadA	Aminoglycoside (3'') (9) adenylyltransferase	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	41975	42323	+	prokka:GKJMHJIH_00052	emrE	Multidrug transporter EmrE	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	42316	43156	+	prokka:GKJMHJIH_00053	sul1	Dihydropteroate synthase type-1	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	43283	43784	+	prokka:GKJMHJIH_00054		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	43766	44342	-	prokka:GKJMHJIH_00055		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	44344	46024	-	prokka:GKJMHJIH_00056		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	46098	46806	-	prokka:GKJMHJIH_00057	mucR	Bifunctional diguanylate cyclase/cyclic di-GMP phosphodiesterase MucR	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	46802	47039	-	prokka:GKJMHJIH_00058		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	47035	47398	-	prokka:GKJMHJIH_00059		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	47415	49110	-	prokka:GKJMHJIH_00060	merA	mercury(II) reductase	metal_resistance		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	49161	49584	-	prokka:GKJMHJIH_00061	merC	Mercuric transport protein MerC	metal_resistance		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	49619	49895	-	prokka:GKJMHJIH_00062	merP	Mercuric transport protein periplasmic component	metal_resistance		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	49908	50259	-	prokka:GKJMHJIH_00063	merT	Mercuric transport protein MerT	metal_resistance		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	50330	50765	+	prokka:GKJMHJIH_00064		ISL3 family transposase ISStma11	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	50871	51249	-	prokka:GKJMHJIH_00065		IS1 family transposase IS1R	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	51320	51536	+	prokka:GKJMHJIH_00066		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	51597	51687	-	prokka:GKJMHJIH_00067		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	51971	52304	-	prokka:GKJMHJIH_00068	pemK	Endoribonuclease PemK	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	52305	52563	-	prokka:GKJMHJIH_00069	pemI	Antitoxin PemI	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	52655	53309	-	prokka:GKJMHJIH_00070		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	54248	55106	-	prokka:GKJMHJIH_00071		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	55755	57297	+	prokka:GKJMHJIH_00072		IS21 family transposase ISPpu7	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	57311	58058	+	prokka:GKJMHJIH_00073		IS21 family transposase ISEc12	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	58546	58738	-	prokka:GKJMHJIH_00074		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	59496	59760	-	prokka:GKJMHJIH_00075		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	59894	60455	-	prokka:GKJMHJIH_00076	finO	Fertility inhibition protein	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	60509	61256	-	prokka:GKJMHJIH_00077		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	61275	66546	-	prokka:GKJMHJIH_00078	traI	Multifunctional conjugation protein TraI	mobility		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	66545	68735	-	prokka:GKJMHJIH_00079	traD	Coupling protein TraD	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	68731	69511	-	prokka:GKJMHJIH_00080		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	69713	70490	-	prokka:GKJMHJIH_00081	ylpA	Lipoprotein YlpA	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	70476	70968	-	prokka:GKJMHJIH_00082		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	70992	73812	-	prokka:GKJMHJIH_00083		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	73808	75182	-	prokka:GKJMHJIH_00084		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	75168	75564	-	prokka:GKJMHJIH_00085		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	75541	75829	-	prokka:GKJMHJIH_00086		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	75818	76364	-	prokka:GKJMHJIH_00087		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	76350	76635	-	prokka:GKJMHJIH_00088	traQ	Protein TraQ	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	76761	77082	-	prokka:GKJMHJIH_00089		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	77129	77633	-	prokka:GKJMHJIH_00090		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	77925	78153	-	prokka:GKJMHJIH_00091	traY	Relaxosome protein TraY	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	78240	78918	-	prokka:GKJMHJIH_00092	traJ	Protein TraJ	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	79051	79435	-	prokka:GKJMHJIH_00093	traM	Relaxosome protein TraM	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	79858	80368	+	prokka:GKJMHJIH_00094		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	80664	81486	-	prokka:GKJMHJIH_00095		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	81604	81892	-	prokka:GKJMHJIH_00096		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	82817	83030	-	prokka:GKJMHJIH_00097	flmC	Protein FlmC	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	83169	84021	-	prokka:GKJMHJIH_00098		IS3 family transposase IS150	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	84017	84539	-	prokka:GKJMHJIH_00099		IS3 family transposase IS103	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	84540	84699	-	prokka:GKJMHJIH_00100		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	84698	85418	-	prokka:GKJMHJIH_00101		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	85414	85849	-	prokka:GKJMHJIH_00102	psiB	Protein PsiB	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	85903	87862	-	prokka:GKJMHJIH_00103	noc	Nucleoid occlusion protein	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	87927	88161	-	prokka:GKJMHJIH_00104		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	88223	88763	-	prokka:GKJMHJIH_00105	ssb	Plasmid-derived single-stranded DNA-binding protein	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	88899	89064	+	prokka:GKJMHJIH_00106		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	89405	89624	-	prokka:GKJMHJIH_00107		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	89649	90213	-	prokka:GKJMHJIH_00108		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	90260	91622	-	prokka:GKJMHJIH_00109		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	91673	91904	-	prokka:GKJMHJIH_00110		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	92938	93130	-	prokka:GKJMHJIH_00111		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	93126	93549	-	prokka:GKJMHJIH_00112		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	93595	94021	-	prokka:GKJMHJIH_00113	klcA	Antirestriction protein KlcA	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	94437	95265	-	prokka:GKJMHJIH_00114		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	95264	95699	-	prokka:GKJMHJIH_00115		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	95712	95934	-	prokka:GKJMHJIH_00116		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	95934	96618	-	prokka:GKJMHJIH_00117	ccrM	DNA methyltransferase CcrM	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	97002	97929	-	prokka:GKJMHJIH_00118		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	98771	99743	-	prokka:GKJMHJIH_00119	sopB	Protein SopB	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	99742	100909	-	prokka:GKJMHJIH_00120		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	101496	102252	-	prokka:GKJMHJIH_00121	repE	Replication initiation protein	replication		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	103025	103832	-	prokka:GKJMHJIH_00122	xerC_2	Tyrosine recombinase XerC	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	103832	104138	-	prokka:GKJMHJIH_00123	ccdB	Toxin CcdB	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	104139	104358	-	prokka:GKJMHJIH_00124	ccdA	Antitoxin CcdA	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	104991	105189	+	prokka:GKJMHJIH_00125		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	105185	105470	-	prokka:GKJMHJIH_00126		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	105489	106623	-	prokka:GKJMHJIH_00127		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	106885	110005	-	prokka:GKJMHJIH_00128		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	110311	110542	+	prokka:GKJMHJIH_00129		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	110538	110955	+	prokka:GKJMHJIH_00130	vapC	tRNA(fMet)-specific endonuclease VapC	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	111116	113255	-	prokka:GKJMHJIH_00131		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	113719	114715	+	prokka:GKJMHJIH_00132		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	114757	115651	+	prokka:GKJMHJIH_00133		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	115787	116291	-	prokka:GKJMHJIH_00134		IS1 family transposase IS1R	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	116698	119815	-	prokka:GKJMHJIH_00135	hsdR	Type I restriction enzyme EcoR124I/EcoR124II endonuclease subunit	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	119936	121220	-	prokka:GKJMHJIH_00136	hsdS	Type I restriction enzyme EcoR124I/EcoR124II specificity subunit	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	121216	122773	-	prokka:GKJMHJIH_00137	hsdM	Type I restriction enzyme EcoR124I/EcoR124II methylase subunit	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	122955	123177	+	prokka:GKJMHJIH_00138		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	123176	123557	+	prokka:GKJMHJIH_00139		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	123561	123741	+	prokka:GKJMHJIH_00140		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	123768	124128	+	prokka:GKJMHJIH_00141		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	124090	124465	+	prokka:GKJMHJIH_00142		IS3 family transposase ISLad1	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	124414	124732	-	prokka:GKJMHJIH_00143		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	124959	125940	-	prokka:GKJMHJIH_00144		IS5 family transposase IS5	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	126017	126107	+	prokka:GKJMHJIH_00145		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	126159	127587	+	prokka:GKJMHJIH_00146	rocC	Amino-acid permease RocC	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	127573	128506	+	prokka:GKJMHJIH_00147	mmuM	Homocysteine S-methyltransferase	other		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	128614	128848	-	prokka:GKJMHJIH_00148		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	128959	129337	-	prokka:GKJMHJIH_00149		IS1 family transposase IS1R	mobile_element		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	129408	129624	+	prokka:GKJMHJIH_00150		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
+upec_ecpf5__NZ_CP054237.1	upec_ecpf5	NZ_CP054237.1	130143	130875	-	prokka:GKJMHJIH_00151		hypothetical protein	hypothetical		prokka	prokka 1.15.6	predicted
