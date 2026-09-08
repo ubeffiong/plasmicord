@@ -1,4 +1,4 @@
-# PlasmiCord review — v0.3.0, 8 September 2026
+# PlasmiCord review — v0.4.0, 8 September 2026
 
 PlasmiCord now includes implementations addressing the five requested gaps. It remains a research framework; neither a sharing edge nor a quality tier is a validated transmission inference.
 
@@ -11,6 +11,20 @@ PlasmiCord now includes implementations addressing the five requested gaps. It r
 | Native imports | MOB-recon, Flye, Unicycler, selected PlasBench and generic FASTA | Common gate, grouping/selection safeguards, source hashes and circularity provenance |
 | Shared annotation | Independently buildable plasmid-annotation-core wheel/CLI; shared engine used by PlasmiCord; PlasBench protein export | No application dependency. PlasBench has not adopted the library internally; its viewer stays separate |
 | Real-cohort calibration | Training-only selection, group/isolate/exact-sequence leakage guards, held-out scoring and abstention | 81 accession-backed plasmids from 32 isolates; independent BLAST comparisons across seven BioProjects. Sequence-relatedness agreement, not transmission truth |
+
+## Detailed final report added in v0.4.0
+
+The new dashboard adds deterministic, evidence-linked module findings; dynamic selected-isolate,
+network and candidate interpretations; colour-coded statuses; chart exports; a distance heatmap;
+complete per-isolate reports; sortable/searchable/paginated tables; optional matching calibration;
+and a recursive output tree with safe previews, metadata, checksums and original downloads.
+A portable ZIP includes the result directory. Diagnostic reports distinguish unfinished runs from
+actual rejection or completed zero-hit searches. See [REPORT_GUIDE.md](REPORT_GUIDE.md).
+
+The presentation was generated and checked on the existing synthetic demo, 81-plasmid reference
+cohort and two real annotated plasmids. Analysis was not repeated merely to refresh HTML.
+Seven new report regressions cover integrity, failure states, coverage, calibration and packaging;
+browser assertions exercise the visible controls, evidence links, charts and print pagination.
 
 ## Original correctness fixes retained
 

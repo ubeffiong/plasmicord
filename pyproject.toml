@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "plasmicord"
-version = "0.3.0"
+version = "0.4.0"
 description = "PlasmiCord: A Chromosome-Aware Plasmid Transmission and Surveillance Framework"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -26,4 +26,4 @@ packages = ["transmission", "plasmid_annotation"]
 package-dir = {transmission = "python"}
 
 [tool.setuptools.package-data]
-transmission = ["report_template.html"]
+transmission = ["report_template.html", "report.css", "report.js", "report_dashboard.js"]

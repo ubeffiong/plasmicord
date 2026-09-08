@@ -16,7 +16,10 @@ plasmicord check
 plasmicord demo --out results_demo_installed
 ```
 
-Open the generated `results_demo/results/REPORT.html`. The browser needs no server,
+Open the generated `results_demo/results/REPORT.html`. Its companion `REPORT_BUNDLE.zip`
+contains the report and its evidence for transfer to another computer.
+Use `plasmicord report --results RESULTS` to refresh an existing report without rerunning analysis.
+See the [report guide](docs/REPORT_GUIDE.md). The browser needs no server,
 internet connection or plugins. Keep the result folder for TSV/JSON/GraphML downloads.
 
 ## Mash and optional reconstruction tools (Linux/WSL)

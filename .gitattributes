@@ -2,6 +2,9 @@
 *.sh text eol=lf
 *.py text eol=lf
 *.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.md text eol=lf
 # Empty optional TSV fields deliberately preserve terminal tabs.
 *.tsv text eol=lf whitespace=-blank-at-eol
 *.json text eol=lf

@@ -3,21 +3,24 @@ import json
 from pathlib import Path
 from plasmid_annotation import annotate, to_plasbench
 from plasmid_annotation.engine import database_identity
-from .contracts import FEATURE_FIELDS, write_tsv
+from .contracts import FEATURE_FIELDS, resolve_path, write_tsv
 
 
 def load_config(path, profile="essential"):
     path = Path(path).resolve()
     config = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(config, dict):
+        raise ValueError(f"{path}: annotation config must be a JSON object")
     if profile == "essential" and any(not config.get(k) for k in ('genes', 'amr', 'mobility')):
         raise ValueError("The essential annotation profile requires genes, amr and mobility configurations; use custom to run a subset")
     for stage in ('genes', 'amr', 'mobility'):
         spec = config.get(stage)
         if spec:
+            if not isinstance(spec, dict):
+                raise ValueError(f"{stage}: configuration must be a JSON object")
             if not spec.get('database') or not spec.get('database_version'):
                 raise ValueError(f"{stage} requires a database and database_version")
-            p = Path(spec['database'])
-            spec['database'] = str(p if p.is_absolute() else path.parent / p)
+            spec['database'] = str(resolve_path(path.parent, spec['database']))
     return config
 
 

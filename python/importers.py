@@ -2,7 +2,7 @@
 import json
 import re
 from pathlib import Path
-from .contracts import fasta_records, read_tsv, write_tsv, checksum, metadata, validate_manifest, INDEX_FIELDS
+from .contracts import fasta_records, read_tsv, write_tsv, checksum, metadata, validate_manifest, resolve_path, INDEX_FIELDS
 
 ADAPTERS = ("generic-fasta", "mob-recon", "flye", "unicycler", "plasbench")
 
@@ -114,8 +114,7 @@ def import_inputs(args):
     if args.samples:
         samples = read_tsv(args.samples, ("isolate_id", "input_path"))
         for sample in samples:
-            path = Path(sample["input_path"])
-            sample["input_path"] = str(path if path.is_absolute() else args.samples.resolve().parent / path)
+            sample["input_path"] = str(resolve_path(args.samples.resolve().parent, sample["input_path"]))
     else:
         if not args.input or not args.isolate_id:
             raise ValueError("Provide --samples or both --input and --isolate-id")

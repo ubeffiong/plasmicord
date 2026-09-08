@@ -182,12 +182,16 @@ def run(args):
                       n_isolates=len(meta), n_plasmids=len(accepted), n_rejected=len(index) - len(accepted), n_units=len(set(assignments.values())))
         # Report generation must succeed before the run is recorded as complete on disk.
         build_report(out, record, index, meta, assignments, features, functions, edge_details, sequences)
-        record["output_sha256"] = {p.name: checksum(p) for p in sorted(out.iterdir()) if p.is_file() and p != provenance}
-        provenance.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
         print(f"Complete: {out / 'REPORT.html'}")
     except BaseException as error:
         record.update(status="failed", error=str(error))
         provenance.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+        try:
+            from .report_output import failure_report
+            failure_report(out, record, index, meta, sequences)
+        except Exception as report_error:
+            record["report_error"] = str(report_error)
+            provenance.write_text(json.dumps(record, indent=2), encoding="utf-8")
         raise
 
 
@@ -267,6 +271,8 @@ def main():
     p.set_defaults(func=import_inputs)
     from .calibration import add_parser as calibration_parser
     calibration_parser(subs)
+    from .report_output import add_parser as report_parser
+    report_parser(subs)
     args = parser.parse_args()
     try:
         args.func(args)

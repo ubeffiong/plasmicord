@@ -14,7 +14,7 @@ FEATURE_FIELDS = "isolate_id plasmid_id plasmid_unit feature_id gene_symbol prod
 
 def read_tsv(path, required=()):
     with Path(path).open(encoding="utf-8-sig", newline="") as handle:
-        reader = csv.DictReader((line for line in handle if line.strip() and not line.startswith("#")), delimiter="\t")
+        reader = csv.DictReader((line for line in handle if line.strip()), delimiter="\t")
         fields = reader.fieldnames or []
         if len(fields) != len(set(fields)) or any(c not in fields for c in required):
             raise ValueError(f"{path}: missing required or duplicate columns; required: {', '.join(required)}")
@@ -35,6 +35,19 @@ def write_tsv(path, fields, rows):
 
 def checksum(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def resolve_path(base_dir, raw):
+    """Resolve a manifest-relative path, rejecting ambiguous Windows drive-relative paths.
+
+    A path like ``C:subdir\\file`` has a drive but no root; joining it with a base
+    directory silently discards the base directory instead of raising an error, so
+    it is rejected explicitly rather than mis-resolved against the process CWD.
+    """
+    p = Path(raw)
+    if p.drive and not p.is_absolute():
+        raise ValueError(f"{raw}: drive-relative paths are not supported; use a full absolute path or a path without a drive letter")
+    return p if p.is_absolute() else Path(base_dir) / p
 
 
 def fasta_records(path):
@@ -95,14 +108,11 @@ def validate_manifest(path, meta, mode, min_length=200):
         seen.add(pid.casefold())
         if row["isolate_id"] not in isolates:
             raise ValueError(f"{pid}: isolate is missing from metadata")
-        fasta = Path(row["fasta_path"])
-        if not fasta.is_absolute():
-            fasta = Path(path).resolve().parent / fasta
+        fasta = resolve_path(Path(path).resolve().parent, row["fasta_path"])
         records = fasta_records(fasta)
         for optional_path in ('assembly_graph_path', 'annotation_path', 'reads_path'):
             if row.get(optional_path):
-                p = Path(row[optional_path])
-                row[optional_path] = str(p if p.is_absolute() else Path(path).resolve().parent / p)
+                row[optional_path] = str(resolve_path(Path(path).resolve().parent, row[optional_path]))
         sequences[pid] = records
         # Sequence-only digest preserves record boundaries and ignores identifiers/wrapping.
         digest = hashlib.sha256("\n".join(seq for _, seq in records).encode()).hexdigest()

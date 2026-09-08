@@ -48,6 +48,7 @@ def load_evidence(path, index):
         return {}
     rows = read_tsv(path, ("plasmid_id", "sequence_sha256", "evidence_source"))
     by_id = {r["plasmid_id"]: r for r in index}
+    evidence_sha256 = checksum(path)
     evidence = {}
     for row in rows:
         pid = row['plasmid_id']
@@ -60,7 +61,7 @@ def load_evidence(path, index):
             raise ValueError("mean_depth must be finite and nonnegative")
         if row.get('classification', '') not in {'', 'plasmid', 'chromosome', 'uncertain'}:
             raise ValueError("classification must be plasmid, chromosome or uncertain")
-        row['evidence_sha256'] = checksum(path)
+        row['evidence_sha256'] = evidence_sha256
         evidence[pid] = row
     return evidence
 
