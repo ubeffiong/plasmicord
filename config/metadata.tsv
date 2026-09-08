@@ -1,0 +1,16 @@
+isolate_id	assembly_path	chromosomal_cluster	date	location
+# ---------------------------------------------------------------------------
+# One isolate per row. Fill in YOUR data.
+#   isolate_id          : unique short id, no spaces and no '__' (reserved)
+#   assembly_path       : path to that isolate's assembly FASTA (draft is fine)
+#   chromosomal_cluster : (optional) cgMLST/SNP cluster id from your routine
+#                         typing. If present, the discordance step will flag
+#                         plasmid links that cross these clusters.
+#   date, location      : (optional) shown as node attributes in the network
+#
+# Lines starting with '#' and blank lines are ignored.
+# The three rows below are commented-out PLACEHOLDERS showing the format.
+# ---------------------------------------------------------------------------
+# iso001	/path/to/iso001.fasta	CC12	2025-01-14	HospitalA
+# iso002	/path/to/iso002.fasta	CC12	2025-01-20	HospitalA
+# iso003	/path/to/iso003.fasta	CC44	2025-02-02	HospitalB

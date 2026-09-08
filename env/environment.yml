@@ -1,0 +1,15 @@
+name: plasmid-transmission
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python>=3.10         # standalone core uses ONLY the stdlib
+  - pip
+  - mob_suite            # mob_recon: extract plasmids from assemblies
+  - mash                 # fast all-vs-all plasmid distances (sketching)
+  - pigz
+  # Optional extras you may want for downstream visualisation / typing:
+  # - mlplasmids
+  # - plasmidfinder
+  # Offline HTML reporting is built in. Cytoscape/Gephi optionally read GraphML.
