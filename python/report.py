@@ -32,6 +32,7 @@ def build_report(out, provenance, index, meta, assignments, features, functions,
                    features=features, unit_functions=functions, edges=edges, edge_evidence=evidence,
                    crosslinks=crosslinks, safeguards=SAFEGUARDS, biological_quality=quality, annotation_status=annotation_status,
                    contigs={pid: [{"id": name, "length": len(seq)} for name, seq in records] for pid, records in sequences.items()},
-                   sensitivity=read_tsv(out / "threshold_sensitivity.tsv"))
+                   sensitivity=read_tsv(out / "threshold_sensitivity.tsv"),
+                   plasmid_clusters=read_tsv(out / "plasmid_clusters.tsv") if (out / "plasmid_clusters.tsv").is_file() else [])
     from .report_output import render_dashboard
     return render_dashboard(out, payload)

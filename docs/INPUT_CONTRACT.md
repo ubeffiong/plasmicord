@@ -103,7 +103,8 @@ number in `[0,100]`. `associated_pmids` is semicolon-separated numeric PubMed ID
 
 **These fields are opaque external identifiers.** PlasmiCord does not validate, recompute
 or interpret them, and they never influence quality/confidence tiers -- see
-[biological quality](QUALITY.md). Output: `typing_crossreference.tsv`.
+[biological quality](QUALITY.md). Output: `typing_crossreference.tsv`, written only when
+`--external-typing` is supplied, scoped to accepted (non-rejected) candidates.
 
 ## Cluster-assignment margin and containment heuristic
 
@@ -114,11 +115,15 @@ the margin is always non-negative; under single linkage it can go negative, expo
 unit whose members are only connected through chained membership rather than mutual
 similarity within the threshold.
 
-`containment_candidates.tsv` flags near-equal-length, high-similarity plasmid pairs using
+`containment_candidates.tsv` is always computed (no flag required) and flags
+near-equal-length, high-similarity plasmid pairs using
 `--containment-min-ratio`/`--containment-max-ratio`/`--containment-max-distance` (defaults
-0.5, 0.95, and `--threshold`). This is a length/similarity heuristic only, **not**
-alignment-confirmed containment, and cannot detect size-disparate containment (a small
-plasmid nested in a much larger one) -- see [REVIEW.md](REVIEW.md) for why.
+0.5, 0.95, and `--threshold`; bounds are validated upfront, before any expensive work). This
+is a length/similarity heuristic only, **not** alignment-confirmed containment, and cannot
+detect size-disparate containment (a small plasmid nested in a much larger one) -- see
+[REVIEW.md](REVIEW.md) for why. The default `--containment-max-ratio 0.95` deliberately
+excludes equal-length pairs (identity/PU territory, not containment); widening it to `1.0`
+would include them.
 
 ## PlasBench interoperability
 

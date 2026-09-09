@@ -54,6 +54,8 @@ def describe(path):
         "mash.log": ("Distances", "Mash execution log"),
         "plasmid_clusters.tsv": ("Units", "Run-local plasmid-unit membership"),
         "threshold_sensitivity.tsv": ("Units", "Unit/singleton counts across alternative thresholds"),
+        "containment_candidates.tsv": ("Units", "Length/similarity heuristic pairs; not alignment-confirmed containment"),
+        "typing_crossreference.tsv": ("Annotation", "Opaque external identifiers (e.g. MOB-suite cluster IDs, COPLA PTU); never used to compute quality tiers"),
         "functional_features.tsv": ("Functions", "Validated contig-coordinate functional evidence"),
         "automatic_features.tsv": ("Annotation", "Normalized automatic-caller output before unit assignment"),
         "plasmid_unit_function.tsv": ("Functions", "Observed function prevalence and annotation coverage"),
@@ -154,6 +156,13 @@ def summary(payload):
             ("No completed sharing summary is available. Intermediate network files, if present, require review with the run failure."
              if failed else f"{len(payload['edges'])} isolate-sharing pairs are represented by {len(payload['edge_evidence'])} pair-unit observations. {indirect} observations lack a direct pairwise distance below the chosen threshold. Neither membership nor direct distance establishes transmission."),
             ["network.edge_evidence.tsv", "plasmid_clusters.tsv"], "Prioritize sequence/structural confirmation and independent epidemiological review.", "sharing")
+    clusters = payload.get("plasmid_clusters", [])
+    multi_member_units = {c["plasmid_unit"] for c in clusters if c.get("unit_threshold_margin") not in (None, "")}
+    chained_units = {c["plasmid_unit"] for c in clusters if c.get("unit_threshold_margin") not in (None, "") and float(c["unit_threshold_margin"]) < 0}
+    finding("chaining_risk", "not_evaluated" if failed or not clusters else "warn" if chained_units else "info", "Single-linkage chaining risk",
+            ("No completed clustering summary is available; unit threshold-margin diagnostics require the run to finish."
+             if failed or not clusters else f"{len(chained_units)}/{len(multi_member_units)} multi-member plasmid units have a negative unit threshold margin: at least one internal member pair exceeds the chosen threshold, so the unit is held together only by chained membership, not mutual similarity within the threshold."),
+            ["plasmid_clusters.tsv"], "Inspect unit_max_internal_distance/unit_threshold_margin directly for units flagged this way.", "sharing")
     amr_n = completion["amr"]
     zero_hits = len({pid for pid, stage in completed if stage == "amr" and pid in accepted_ids} - observed)
     finding("amr_coverage", "pass" if n and amr_n == n else "warn" if features or amr_n else "not_evaluated",

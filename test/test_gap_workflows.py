@@ -214,6 +214,15 @@ class GapWorkflows(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'checksum'):
             load_external_typing(path,index)
 
+    def test_external_typing_rejects_blank_external_tool(self):
+        index,_=self.quality_index()
+        digest=index[0]['sequence_sha256']
+        fields=['plasmid_id','sequence_sha256','evidence_source','external_tool']
+        path=self.p/'typing.tsv'
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='')])
+        with self.assertRaisesRegex(ValueError,'external_tool'):
+            load_external_typing(path,index)
+
     def test_external_typing_round_trips_opaque_fields_and_validates_confidence(self):
         index,_=self.quality_index()
         digest=index[0]['sequence_sha256']
@@ -224,9 +233,14 @@ class GapWorkflows(unittest.TestCase):
         result=load_external_typing(path,index)
         self.assertEqual(result['p1']['mob_primary_cluster_id'],'AA123')
         self.assertEqual(result['p1']['ptu_assignment'],'PTU-FE')
+        self.assertEqual(result['p1']['associated_pmids'],'12345;67890')
         write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='mob_suite',
                                     mob_primary_cluster_id='',ptu_assignment='',ptu_confidence='not-a-number',associated_pmids='')])
         with self.assertRaisesRegex(ValueError,'ptu_confidence'):
+            load_external_typing(path,index)
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='mob_suite',
+                                    mob_primary_cluster_id='',ptu_assignment='',ptu_confidence='',associated_pmids='not-a-pmid')])
+        with self.assertRaisesRegex(ValueError,'associated_pmids'):
             load_external_typing(path,index)
 
     def test_containment_heuristic_skips_equal_length_and_size_disparity(self):
@@ -269,6 +283,15 @@ class GapWorkflows(unittest.TestCase):
         run(args)
         return args.out
 
+    def test_run_rejects_invalid_containment_bounds_before_reading_inputs(self):
+        args=argparse.Namespace(manifest=self.p/'does_not_exist.tsv',metadata=self.p/'also_missing.tsv',
+            features=None,mode='precomputed',engine='kmer',out=self.p/'unused_out',threshold=.05,k=3,
+            min_length=3,sketch_size=100,linkage='complete',annotation_config=None,external_typing=None,
+            containment_min_ratio=0.9,containment_max_ratio=0.5)
+        with self.assertRaisesRegex(ValueError,'containment-min-ratio'):
+            run(args)
+        self.assertFalse((self.p/'unused_out').exists())
+
     def test_run_writes_margin_and_containment_and_typing_does_not_leak_into_quality(self):
         out1=self.run_fixture('run_no_typing')
         edge_rows=read_tsv(out1/'network.edge_evidence.tsv')
@@ -276,6 +299,7 @@ class GapWorkflows(unittest.TestCase):
         edge=edge_rows[0]
         self.assertAlmostEqual(float(edge['threshold_margin']),.05-float(edge['minimum_distance']))
         self.assertTrue((out1/'containment_candidates.tsv').exists())
+        self.assertFalse((out1/'typing_crossreference.tsv').exists())
         digest=hashlib.sha256('ACGTTGCAACGTTCAGGATCCGATACCTAGCTGACTGGTAC'.encode()).hexdigest()
         typing_path=self.p/'typing.tsv'
         write_tsv(typing_path,['plasmid_id','sequence_sha256','evidence_source','external_tool','mob_primary_cluster_id'],

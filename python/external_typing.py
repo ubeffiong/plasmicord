@@ -23,14 +23,14 @@ def load_external_typing(path, index):
     for row in rows:
         pid = row["plasmid_id"]
         if (pid not in by_id or pid in typing or row["sequence_sha256"] != by_id[pid]["sequence_sha256"]
-                or not row["evidence_source"]):
-            raise ValueError(f"External typing must uniquely match a candidate checksum and source: {pid}")
+                or not row["evidence_source"] or not row["external_tool"]):
+            raise ValueError(f"External typing must uniquely match a candidate checksum and source, and name an external_tool: {pid}")
         confidence = row.get("ptu_confidence", "")
         if confidence and confidence.lower() not in {"low", "medium", "high"}:
             try:
                 value = float(confidence)
             except ValueError:
-                raise ValueError(f"{pid}: ptu_confidence must be low/medium/high or a number in [0,100]")
+                raise ValueError(f"{pid}: ptu_confidence must be low/medium/high or a number in [0,100]") from None
             if not 0 <= value <= 100:
                 raise ValueError(f"{pid}: ptu_confidence must be low/medium/high or a number in [0,100]")
         pmids = row.get("associated_pmids", "")

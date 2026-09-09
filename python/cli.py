@@ -67,6 +67,15 @@ def run(args):
         raise ValueError("threshold must be finite and in [0,1]")
     if args.k < 1 or args.min_length < args.k or args.sketch_size < 1:
         raise ValueError("Require k >= 1, min-length >= k, and sketch-size >= 1")
+    containment_min_ratio = getattr(args, 'containment_min_ratio', 0.5)
+    containment_max_ratio = getattr(args, 'containment_max_ratio', 0.95)
+    containment_max_distance = getattr(args, 'containment_max_distance', None)
+    if containment_max_distance is None:
+        containment_max_distance = args.threshold
+    if not 0 < containment_min_ratio < containment_max_ratio <= 1:
+        raise ValueError("Require 0 < containment-min-ratio < containment-max-ratio <= 1")
+    if not 0 <= containment_max_distance <= 1:
+        raise ValueError("containment-max-distance must be in [0,1]")
     meta = metadata(args.metadata)
     index, sequences = validate_manifest(args.manifest, meta, args.mode, args.min_length)
     out = args.out.resolve()
@@ -108,11 +117,12 @@ def run(args):
         # External typing/taxonomy cross-references are opaque identifiers, reported but never
         # passed to assess() as `typing` -- they must not influence quality/confidence tiers.
         external_typing = load_external_typing(getattr(args, 'external_typing', None), index)
-        write_tsv(out / "typing_crossreference.tsv", EXTERNAL_TYPING_FIELDS,
-                  [external_typing[r["plasmid_id"]] for r in index if r["plasmid_id"] in external_typing])
         if getattr(args, 'external_typing', None):
             record['external_typing_sha256'] = checksum(args.external_typing)
         accepted = [r for r in index if r["quality_status"] != "rejected"]
+        if external_typing:
+            write_tsv(out / "typing_crossreference.tsv", EXTERNAL_TYPING_FIELDS,
+                      [external_typing[r["plasmid_id"]] for r in accepted if r["plasmid_id"] in external_typing])
         write_tsv(out / "validation.tsv", INDEX_FIELDS, index)
         pdir = out / "plasmids"
         pdir.mkdir()
@@ -188,10 +198,8 @@ def run(args):
                                          shared_args=";".join(sorted(shared_args)),
                                          interpretation="candidate sharing link; direct transmission unproven"))
         write_tsv(out / "network.edge_evidence.tsv", "source target plasmid_unit minimum_distance direct_threshold_support threshold_margin shared_args interpretation".split(), edge_details)
-        containment_max_distance = getattr(args, 'containment_max_distance', None)
         containment_rows = detect_containment(accepted, ids, pos, distances,
-            getattr(args, 'containment_min_ratio', 0.5), getattr(args, 'containment_max_ratio', 0.95),
-            containment_max_distance if containment_max_distance is not None else args.threshold)
+            containment_min_ratio, containment_max_ratio, containment_max_distance)
         write_tsv(out / "containment_candidates.tsv", CONTAINMENT_FIELDS, containment_rows)
         record.update(status="complete", completed_at=datetime.now(timezone.utc).isoformat(),
                       n_isolates=len(meta), n_plasmids=len(accepted), n_rejected=len(index) - len(accepted), n_units=len(set(assignments.values())))

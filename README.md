@@ -158,7 +158,7 @@ the report. Browser Print can produce a static PDF; retain HTML for interactivit
 | `discordance.crosslinks.tsv`, `discordance.summary.txt` | Known cross-cluster sharing evidence |
 | `functional_features.tsv`, `plasmid_unit_function.tsv` | Normalized features and observed unit functions |
 | `threshold_sensitivity.tsv` | PU counts at alternative thresholds |
-| `typing_crossreference.tsv` | Opaque external identifiers (MOB-suite cluster IDs, COPLA PTU, host range); never used to compute quality tiers |
+| `typing_crossreference.tsv` | Present only with `--external-typing`; opaque external identifiers (MOB-suite cluster IDs, COPLA PTU, host range), never used to compute quality tiers |
 | `containment_candidates.tsv` | Length/similarity heuristic pairs; not alignment-confirmed containment |
 | `population_summary.pu_level.tsv`, `population_summary.metadata_dimension.tsv` | Optional cohort-level aggregation from `plasmicord population-summary` |
 | `run_provenance.json` | Versions, parameters, input/output checksums and completion/failure status |

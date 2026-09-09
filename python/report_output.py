@@ -159,6 +159,7 @@ def failure_report(out, provenance, index, meta, sequences):
         edge_evidence=[], crosslinks=[], safeguards=SAFEGUARDS,
         biological_quality=read_tsv(out/"biological_quality.tsv") if (out/"biological_quality.tsv").is_file() else [],
         annotation_status=read_tsv(out/"annotation_status.tsv") if (out/"annotation_status.tsv").is_file() else [],
+        plasmid_clusters=read_tsv(out/"plasmid_clusters.tsv") if (out/"plasmid_clusters.tsv").is_file() else [],
         contigs={pid:[dict(id=n,length=len(s)) for n,s in records] for pid,records in sequences.items()},
         sensitivity=[], counts=dict(isolates=len(meta),plasmids=None,units=None,sharing_pairs=None,
                                    cross_cluster_pairs=None,cross_cluster_unit_links=None,typed_isolates=sum(bool(m.get("chromosomal_cluster")) for m in meta),

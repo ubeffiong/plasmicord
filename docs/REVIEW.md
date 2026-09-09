@@ -48,7 +48,8 @@ Software validation covers ten standalone regressions, the new gap-workflow test
 
 - Independently reviewed transmission labels, comparable chromosome typing and external-population validation.
 - Automated raw-read assembly/polishing, mapping and contamination classification. Current quality assessment consumes external measurements and automatically evaluates sequence, marker and simple graph evidence.
-- Complex graph closure, synteny and structural confirmation remain future work. A new length/similarity heuristic (`containment_candidates.tsv`) flags candidate nested-plasmid pairs, but Mash/k-mer distance is a poor proxy for size-disparate containment (a small plasmid nearly wholly nested in a much larger one), so it only catches near-equal-length, high-similarity pairs; alignment-based (MUMmer4-style) confirmation is unimplemented and out of stdlib-only scope. A replicon does not prove a complete plasmid.
+- Complex graph closure, synteny and structural confirmation remain future work. A replicon does not prove a complete plasmid.
+- A new length/similarity heuristic (`containment_candidates.tsv`, always computed) flags candidate nested-plasmid pairs, but Mash/k-mer distance is a poor proxy for size-disparate containment (a small plasmid nearly wholly nested in a much larger one), so it only catches near-equal-length, high-similarity pairs; alignment-based (MUMmer4-style) confirmation is unimplemented and out of stdlib-only scope. Widening `--containment-max-ratio` to 1.0 would also flag equal-length pairs; the default 0.95 excludes them deliberately.
 - Empirically calibrated quality tiers, phenotypic AMR validation and organism-specific mutation analysis.
 - Orthology, validated conserved/accessory functions and defined-component module completeness.
 - Shared viewer extraction and explicit adoption of the independent library inside PlasBench.

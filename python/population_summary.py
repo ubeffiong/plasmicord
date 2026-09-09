@@ -16,6 +16,8 @@ PU_LEVEL_FIELDS = ("plasmid_unit n_plasmids n_isolates isolates replicon_types m
 DIMENSION_FIELDS = ("dimension value n_isolates n_plasmids n_plasmid_units "
                     "n_resistance_genes resistance_genes first_date last_date interpretation").split()
 
+# plasmid_clusters.tsv (PU membership per plasmid) and biological_quality.tsv (replicon/mobility
+# typing) are needed for the PU-level table; network.isolate_units.tsv is not read anywhere below.
 SOURCE_FILES = ("plasmid_index.tsv", "metadata.tsv", "plasmid_clusters.tsv",
                 "biological_quality.tsv", "functional_features.tsv")
 
