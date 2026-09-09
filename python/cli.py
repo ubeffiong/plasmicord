@@ -17,6 +17,8 @@ from .contracts import (MODES, INDEX_FIELDS, FEATURE_FIELDS, checksum, metadata,
 from .cluster_plasmids import cluster_single, cluster_complete, read_matrix
 from .report import build_report
 from .quality import assess, load_evidence, QUALITY_FIELDS
+from .external_typing import EXTERNAL_TYPING_FIELDS, load_external_typing
+from .containment import CONTAINMENT_FIELDS, detect_containment
 
 
 def step(script, *args):
@@ -103,6 +105,13 @@ def run(args):
         write_tsv(out/'biological_quality.tsv', QUALITY_FIELDS, quality_rows)
         if getattr(args, 'quality_evidence', None):
             record['quality_evidence_sha256'] = checksum(args.quality_evidence)
+        # External typing/taxonomy cross-references are opaque identifiers, reported but never
+        # passed to assess() as `typing` -- they must not influence quality/confidence tiers.
+        external_typing = load_external_typing(getattr(args, 'external_typing', None), index)
+        write_tsv(out / "typing_crossreference.tsv", EXTERNAL_TYPING_FIELDS,
+                  [external_typing[r["plasmid_id"]] for r in index if r["plasmid_id"] in external_typing])
+        if getattr(args, 'external_typing', None):
+            record['external_typing_sha256'] = checksum(args.external_typing)
         accepted = [r for r in index if r["quality_status"] != "rejected"]
         write_tsv(out / "validation.tsv", INDEX_FIELDS, index)
         pdir = out / "plasmids"
@@ -175,9 +184,15 @@ def run(args):
                 shared_args = set().union(*(eligible[p] for p in left)) & set().union(*(eligible[p] for p in right))
                 edge_details.append(dict(source=edge["source"], target=edge["target"], plasmid_unit=unit,
                                          minimum_distance=distance, direct_threshold_support=str(distance <= args.threshold).lower(),
+                                         threshold_margin=args.threshold - distance,
                                          shared_args=";".join(sorted(shared_args)),
                                          interpretation="candidate sharing link; direct transmission unproven"))
-        write_tsv(out / "network.edge_evidence.tsv", "source target plasmid_unit minimum_distance direct_threshold_support shared_args interpretation".split(), edge_details)
+        write_tsv(out / "network.edge_evidence.tsv", "source target plasmid_unit minimum_distance direct_threshold_support threshold_margin shared_args interpretation".split(), edge_details)
+        containment_max_distance = getattr(args, 'containment_max_distance', None)
+        containment_rows = detect_containment(accepted, ids, pos, distances,
+            getattr(args, 'containment_min_ratio', 0.5), getattr(args, 'containment_max_ratio', 0.95),
+            containment_max_distance if containment_max_distance is not None else args.threshold)
+        write_tsv(out / "containment_candidates.tsv", CONTAINMENT_FIELDS, containment_rows)
         record.update(status="complete", completed_at=datetime.now(timezone.utc).isoformat(),
                       n_isolates=len(meta), n_plasmids=len(accepted), n_rejected=len(index) - len(accepted), n_units=len(set(assignments.values())))
         # Report generation must succeed before the run is recorded as complete on disk.
@@ -242,6 +257,7 @@ def main():
     p.add_argument("--annotation-cache", type=Path)
     p.add_argument("--threads", type=int, default=1)
     p.add_argument("--quality-evidence", type=Path, help="Checksum-linked classification/read/contamination evidence TSV")
+    p.add_argument("--external-typing", type=Path, help="Checksum-linked cross-reference TSV for opaque external identifiers (e.g. MOB-suite cluster IDs, COPLA PTU); never influences quality tiers")
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--mode", choices=MODES, default="precomputed")
     p.add_argument("--engine", choices=("mash", "kmer"), default="mash")
@@ -250,6 +266,9 @@ def main():
     p.add_argument("--k", type=int, default=21)
     p.add_argument("--sketch-size", type=int, default=10000)
     p.add_argument("--min-length", type=int, default=200)
+    p.add_argument("--containment-min-ratio", type=float, default=0.5, help="Minimum small/large length ratio for the containment heuristic")
+    p.add_argument("--containment-max-ratio", type=float, default=0.95, help="Maximum small/large length ratio for the containment heuristic (equal-length pairs are excluded)")
+    p.add_argument("--containment-max-distance", type=float, help="Maximum pairwise distance for the containment heuristic (defaults to --threshold)")
     p.set_defaults(func=run)
     p = subs.add_parser("demo", help="Run seeded synthetic data with illustrative functional annotations")
     p.add_argument("--out", type=Path, default=Path("results_demo"))
@@ -273,6 +292,8 @@ def main():
     calibration_parser(subs)
     from .report_output import add_parser as report_parser
     report_parser(subs)
+    from .population_summary import add_parser as population_summary_parser
+    population_summary_parser(subs)
     args = parser.parse_args()
     try:
         args.func(args)

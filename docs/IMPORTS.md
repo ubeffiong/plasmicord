@@ -24,3 +24,8 @@ For batches, replace `--input` and `--isolate-id` with `--samples samples.tsv`. 
 Do not select assembly contigs solely because they are circular: chromosomes can also be circular. These adapters consume completed native outputs; they do not assemble raw FASTQ. PlasBench is an optional file format, with no import or runtime dependence on that application. Its recovery scores are source context, not transmission confidence.
 
 Native specifications: [MOB-suite](https://github.com/phac-nml/mob-suite), [Flye](https://github.com/mikolmogorov/Flye/blob/flye/docs/USAGE.md), [Unicycler](https://github.com/rrwick/Unicycler).
+
+Importing `mob-recon` output does **not** automatically populate MOB-suite's own
+`primary_cluster_id`/`secondary_cluster_id` -- those come only from `mob_cluster`
+(a separate MOB-suite stage this adapter does not run) and can be attached afterward via
+`--external-typing` on `plasmicord run`; see [input contract](INPUT_CONTRACT.md).

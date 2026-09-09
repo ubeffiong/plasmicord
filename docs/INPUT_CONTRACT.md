@@ -90,6 +90,36 @@ It is not an orthology or validated core-genome call. Module completeness remain
 unresolved. Supplied KO/module/domain fields and provenance are available in gene
 details; automated orthology and module analysis are not implemented.
 
+## External typing/taxonomy cross-reference
+
+`--external-typing` accepts an optional checksum-linked TSV carrying identifiers
+PlasmiCord does not compute itself: `mob_primary_cluster_id`, `mob_secondary_cluster_id`,
+`mob_cluster_distance_definition`, `ptu_assignment`, `ptu_confidence`,
+`predicted_host_range_overall_rank`, `predicted_host_range_overall_name`,
+`associated_pmids`. Required columns are `plasmid_id`, `sequence_sha256`,
+`evidence_source`, `external_tool`. `sequence_sha256` must match the candidate's checksum;
+`plasmid_id` must be unique in the file. `ptu_confidence` is `low`/`medium`/`high` or a
+number in `[0,100]`. `associated_pmids` is semicolon-separated numeric PubMed IDs.
+
+**These fields are opaque external identifiers.** PlasmiCord does not validate, recompute
+or interpret them, and they never influence quality/confidence tiers -- see
+[biological quality](QUALITY.md). Output: `typing_crossreference.tsv`.
+
+## Cluster-assignment margin and containment heuristic
+
+`network.edge_evidence.tsv` includes `threshold_margin` (`threshold - minimum_distance`)
+per edge, and `plasmid_clusters.tsv` includes `unit_max_internal_distance` and
+`unit_threshold_margin` per plasmid unit (blank for singletons). Under complete linkage
+the margin is always non-negative; under single linkage it can go negative, exposing a
+unit whose members are only connected through chained membership rather than mutual
+similarity within the threshold.
+
+`containment_candidates.tsv` flags near-equal-length, high-similarity plasmid pairs using
+`--containment-min-ratio`/`--containment-max-ratio`/`--containment-max-distance` (defaults
+0.5, 0.95, and `--threshold`). This is a length/similarity heuristic only, **not**
+alignment-confirmed containment, and cannot detect size-disparate containment (a small
+plasmid nested in a much larger one) -- see [REVIEW.md](REVIEW.md) for why.
+
 ## PlasBench interoperability
 
 Use `plasmicord import plasbench` for native selected-candidate exports, or create

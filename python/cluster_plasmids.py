@@ -152,20 +152,31 @@ def main():
     named = []
     for members in comps:
         names = sorted(items[i] for i in members)
-        named.append(names)
-    named.sort(key=lambda names: names[0])
+        named.append((names, members))
+    named.sort(key=lambda pair: pair[0][0])
 
     width = max(4, len(str(len(named))))
     item_to_cluster = {}
-    for k, names in enumerate(named, start=1):
+    # unit_threshold_margin: threshold minus the cluster's worst (max) internal pairwise
+    # distance. Always >=0 under complete linkage (an algorithm invariant); can go negative
+    # under single linkage, exposing chained membership beyond the direct threshold.
+    cluster_margin = {}
+    for k, (names, members) in enumerate(named, start=1):
         cid = f"PU_{k:0{width}d}"
         for nm in names:
             item_to_cluster[nm] = cid
+        if len(members) > 1:
+            worst = max(dist[a][b] for a in members for b in members if a != b)
+            cluster_margin[cid] = (f"{worst:.6f}", f"{args.threshold - worst:.6f}")
+        else:
+            cluster_margin[cid] = ("", "")
 
     with open(args.out, "w") as out:
-        out.write("plasmid_id\tplasmid_unit\n")
+        out.write("plasmid_id\tplasmid_unit\tunit_max_internal_distance\tunit_threshold_margin\n")
         for nm in items:
-            out.write(f"{nm}\t{item_to_cluster[nm]}\n")
+            cid = item_to_cluster[nm]
+            worst, margin = cluster_margin[cid]
+            out.write(f"{nm}\t{cid}\t{worst}\t{margin}\n")
 
     n_clusters = len(named)
     singletons = sum(1 for names in named if len(names) == 1)

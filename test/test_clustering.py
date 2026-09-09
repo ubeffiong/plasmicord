@@ -24,8 +24,19 @@ def run(matrix, threshold, linkage, out):
     with open(out) as fh:
         fh.readline()
         for line in fh:
-            pid, cid = line.rstrip("\n").split("\t")
+            pid, cid, *_ = line.rstrip("\n").split("\t")
             result[pid] = cid
+    return result
+
+
+def margins(out):
+    """plasmid_id -> (unit_max_internal_distance, unit_threshold_margin) as raw strings."""
+    result = {}
+    with open(out) as fh:
+        fh.readline()
+        for line in fh:
+            pid, _cid, worst, margin = line.rstrip("\n").split("\t")
+            result[pid] = (worst, margin)
     return result
 
 
@@ -64,6 +75,16 @@ def main():
     print("single@0.05 ->", got)
     ok &= (got == exp); print("  expected {A,B,C},{D,E} ->", got == exp)
 
+    # Single linkage can chain beyond the threshold (A-C=0.50 > 0.05 within {A,B,C}):
+    # the unit margin must go negative, exposing that diagnostic without touching clustering.
+    m_single = margins(os.path.join(tmp, "s.tsv"))
+    single_abc_margin = float(m_single["A"][1])
+    ok &= single_abc_margin < 0
+    print("  single {A,B,C} unit_threshold_margin < 0 ->", single_abc_margin < 0, f"({single_abc_margin})")
+    single_de_margin = float(m_single["D"][1])
+    ok &= abs(single_de_margin - 0.04) < 1e-6
+    print("  single {D,E} unit_threshold_margin == 0.04 ->", abs(single_de_margin - 0.04) < 1e-6)
+
     # COMPLETE linkage @0.05: A-C is 0.50 > 0.05, so {A,B,C} cannot form under
     # complete linkage. A-B merge ok (0.02). C cannot join (needs C-A<=0.05).
     # => {A,B}, {C}, {D,E}
@@ -72,6 +93,15 @@ def main():
     got = groups(res)
     print("complete@0.05 ->", got)
     ok &= (got == exp); print("  expected {A,B},{C},{D,E} ->", got == exp)
+
+    # Complete linkage never produces a negative margin (algorithm invariant); a singleton
+    # cluster (C) has no internal distance to report, so its margin fields are blank.
+    m_complete = margins(os.path.join(tmp, "c.tsv"))
+    complete_margins_nonneg = all(v != "" and float(v) >= 0 for _worst, v in m_complete.values() if v != "")
+    ok &= complete_margins_nonneg
+    print("  complete linkage unit_threshold_margin always >= 0 ->", complete_margins_nonneg)
+    ok &= m_complete["C"] == ("", "")
+    print("  complete {C} singleton margin blank ->", m_complete["C"] == ("", ""))
 
     # Threshold 0.0: everything singleton.
     res = run(m, 0.0, "single", os.path.join(tmp, "z.tsv"))

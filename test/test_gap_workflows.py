@@ -15,9 +15,12 @@ from plasmid_annotation import annotate, parse_gff, parse_amrfinder, to_plasbenc
 from plasmid_annotation.engine import database_identity
 from python.importers import native_candidates, import_inputs
 from python.quality import assess, load_evidence, graph_closure
-from python.contracts import write_tsv
+from python.contracts import write_tsv, read_tsv
 from python.calibration import calibrate
-from python.cli import aggregate
+from python.cli import aggregate, run
+from python.external_typing import load_external_typing
+from python.containment import detect_containment
+from python.population_summary import summarize
 
 
 class GapWorkflows(unittest.TestCase):
@@ -199,6 +202,151 @@ class GapWorkflows(unittest.TestCase):
         rows[-1]['group_id']='train';write_tsv(args.labels,list(rows[0]),rows)
         with self.assertRaisesRegex(ValueError,'group spans'):
             calibrate(args)
+
+    def test_external_typing_rejects_checksum_mismatch_and_unknown_id(self):
+        index,_=self.quality_index()
+        fields=['plasmid_id','sequence_sha256','evidence_source','external_tool']
+        path=self.p/'typing.tsv'
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256='wrong',evidence_source='lab',external_tool='mob_suite')])
+        with self.assertRaisesRegex(ValueError,'checksum'):
+            load_external_typing(path,index)
+        write_tsv(path,fields,[dict(plasmid_id='unknown',sequence_sha256='x',evidence_source='lab',external_tool='mob_suite')])
+        with self.assertRaisesRegex(ValueError,'checksum'):
+            load_external_typing(path,index)
+
+    def test_external_typing_round_trips_opaque_fields_and_validates_confidence(self):
+        index,_=self.quality_index()
+        digest=index[0]['sequence_sha256']
+        fields=['plasmid_id','sequence_sha256','evidence_source','external_tool','mob_primary_cluster_id','ptu_assignment','ptu_confidence','associated_pmids']
+        path=self.p/'typing.tsv'
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='mob_suite',
+                                    mob_primary_cluster_id='AA123',ptu_assignment='PTU-FE',ptu_confidence='high',associated_pmids='12345;67890')])
+        result=load_external_typing(path,index)
+        self.assertEqual(result['p1']['mob_primary_cluster_id'],'AA123')
+        self.assertEqual(result['p1']['ptu_assignment'],'PTU-FE')
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='mob_suite',
+                                    mob_primary_cluster_id='',ptu_assignment='',ptu_confidence='not-a-number',associated_pmids='')])
+        with self.assertRaisesRegex(ValueError,'ptu_confidence'):
+            load_external_typing(path,index)
+
+    def test_containment_heuristic_skips_equal_length_and_size_disparity(self):
+        accepted=[dict(plasmid_id='small',isolate_id='i1',length=950),
+                  dict(plasmid_id='large',isolate_id='i2',length=1000),
+                  dict(plasmid_id='equal_a',isolate_id='i3',length=1000),
+                  dict(plasmid_id='equal_b',isolate_id='i4',length=1000),
+                  dict(plasmid_id='tiny',isolate_id='i5',length=100)]
+        ids=[r['plasmid_id'] for r in accepted]
+        pos={pid:i for i,pid in enumerate(ids)}
+        n=len(ids);distances=[[0.0]*n for _ in range(n)]
+        def setd(a,b,v): distances[pos[a]][pos[b]]=distances[pos[b]][pos[a]]=v
+        setd('small','large',0.02);setd('equal_a','equal_b',0.01);setd('tiny','large',0.01)
+        rows=detect_containment(accepted,ids,pos,distances)
+        pairs={(r['small_plasmid_id'],r['large_plasmid_id']) for r in rows}
+        self.assertIn(('small','large'),pairs)
+        self.assertNotIn(('equal_a','equal_b'),pairs)
+        self.assertNotIn(('tiny','large'),pairs)
+        for r in rows:
+            self.assertEqual(r['heuristic_flag'],'heuristic_length_similarity')
+            self.assertIn('NOT alignment-confirmed',r['interpretation'])
+
+    def test_containment_rejects_invalid_ratio_bounds(self):
+        with self.assertRaisesRegex(ValueError,'containment-min-ratio'):
+            detect_containment([],[],{},[],min_length_ratio=0.9,max_length_ratio=0.5)
+
+    def run_fixture(self,out_name,external_typing=None,features=None):
+        meta=self.p/'meta.tsv'
+        write_tsv(meta,['isolate_id'],[dict(isolate_id='i1'),dict(isolate_id='i2')])
+        seq='ACGTTGCAACGTTCAGGATCCGATACCTAGCTGACTGGTAC'
+        fasta1=self.p/'p1.fa';fasta1.write_text(f'>p1\n{seq}\n')
+        fasta2=self.p/'p2.fa';fasta2.write_text(f'>p2\n{seq}\n')
+        manifest=self.p/f'{out_name}_manifest.tsv'
+        write_tsv(manifest,['isolate_id','plasmid_id','fasta_path'],
+                  [dict(isolate_id='i1',plasmid_id='p1',fasta_path=str(fasta1)),
+                   dict(isolate_id='i2',plasmid_id='p2',fasta_path=str(fasta2))])
+        args=argparse.Namespace(manifest=manifest,metadata=meta,features=features,mode='precomputed',engine='kmer',
+            out=self.p/out_name,threshold=.05,k=3,min_length=3,sketch_size=100,linkage='complete',
+            annotation_config=None,external_typing=external_typing)
+        run(args)
+        return args.out
+
+    def test_run_writes_margin_and_containment_and_typing_does_not_leak_into_quality(self):
+        out1=self.run_fixture('run_no_typing')
+        edge_rows=read_tsv(out1/'network.edge_evidence.tsv')
+        self.assertEqual(len(edge_rows),1)
+        edge=edge_rows[0]
+        self.assertAlmostEqual(float(edge['threshold_margin']),.05-float(edge['minimum_distance']))
+        self.assertTrue((out1/'containment_candidates.tsv').exists())
+        digest=hashlib.sha256('ACGTTGCAACGTTCAGGATCCGATACCTAGCTGACTGGTAC'.encode()).hexdigest()
+        typing_path=self.p/'typing.tsv'
+        write_tsv(typing_path,['plasmid_id','sequence_sha256','evidence_source','external_tool','mob_primary_cluster_id'],
+                  [dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='mob_suite',mob_primary_cluster_id='AA1'),
+                   dict(plasmid_id='p2',sequence_sha256=digest,evidence_source='lab',external_tool='mob_suite',mob_primary_cluster_id='AA1')])
+        out2=self.run_fixture('run_with_typing',external_typing=typing_path)
+        crossref=read_tsv(out2/'typing_crossreference.tsv')
+        self.assertEqual({r['plasmid_id'] for r in crossref},{'p1','p2'})
+        self.assertEqual(crossref[0]['mob_primary_cluster_id'],'AA1')
+        self.assertEqual((out1/'biological_quality.tsv').read_text(),(out2/'biological_quality.tsv').read_text())
+
+    def population_summary_fixture(self):
+        meta=self.p/'meta.tsv'
+        write_tsv(meta,['isolate_id','organism','location','date'],[
+            dict(isolate_id='i1',organism='E. coli',location='SiteA',date='2026-01-01'),
+            dict(isolate_id='i2',organism='E. coli',location='SiteA',date='2026-01-05'),
+            dict(isolate_id='i3',organism='Klebsiella pneumoniae',location='SiteB',date='2026-02-01')])
+        seq_a='ACGTTGCAACGTTCAGGATCCGATACCTAGCTGACTGGTAC'
+        seq_b='TTTTGGGGCCCCAAAATTTTGGGGCCCCAAAATTTTGGGG'
+        p1=self.p/'p1.fa';p1.write_text(f'>p1\n{seq_a}\n')
+        p2=self.p/'p2.fa';p2.write_text(f'>p2\n{seq_a}\n')
+        p3=self.p/'p3.fa';p3.write_text(f'>p3\n{seq_b}\n')
+        manifest=self.p/'pop_manifest.tsv'
+        write_tsv(manifest,['isolate_id','plasmid_id','fasta_path'],[
+            dict(isolate_id='i1',plasmid_id='p1',fasta_path=str(p1)),
+            dict(isolate_id='i2',plasmid_id='p2',fasta_path=str(p2)),
+            dict(isolate_id='i3',plasmid_id='p3',fasta_path=str(p3))])
+        features=self.p/'pop_features.tsv'
+        row=dict(plasmid_id='p1',feature_id='f1',start=1,end=10,strand='+',amr_gene='blaTEST',
+                 drug_class='beta-lactam',hit_class='strict',annotation_confidence='high',
+                 annotation_engine='amrfinder',database_name='amrfinderdb',database_version='2026')
+        write_tsv(features,list(row),[row])
+        out=self.p/'pop_results'
+        args=argparse.Namespace(manifest=manifest,metadata=meta,features=features,mode='precomputed',engine='kmer',
+            out=out,threshold=.05,k=3,min_length=3,sketch_size=100,linkage='complete',annotation_config=None)
+        run(args)
+        return out
+
+    def test_population_summary_rejects_incomplete_or_stale_run(self):
+        out=self.population_summary_fixture()
+        provenance_path=out/'run_provenance.json'
+        record=json.loads(provenance_path.read_text())
+        record['status']='running'
+        provenance_path.write_text(json.dumps(record))
+        with self.assertRaisesRegex(ValueError,'requires a completed run'):
+            summarize(argparse.Namespace(results=out,out_prefix=None))
+        record['status']='complete'
+        record['output_sha256']['plasmid_index.tsv']='0'*64
+        provenance_path.write_text(json.dumps(record))
+        with self.assertRaisesRegex(ValueError,'changed or missing'):
+            summarize(argparse.Namespace(results=out,out_prefix=None))
+
+    def test_population_summary_aggregates_expected_counts(self):
+        out=self.population_summary_fixture()
+        summarize(argparse.Namespace(results=out,out_prefix=None))
+        pu_rows=read_tsv(out/'population_summary.pu_level.tsv')
+        self.assertEqual(len(pu_rows),2)
+        pu_rows.sort(key=lambda r:-int(r['n_plasmids']))
+        big,small=pu_rows
+        self.assertEqual(big['n_plasmids'],'2')
+        self.assertEqual(set(big['isolates'].split(';')),{'i1','i2'})
+        self.assertEqual(big['resistance_genes'],'blaTEST')
+        self.assertEqual(big['n_resistance_genes'],'1')
+        self.assertEqual(small['n_plasmids'],'1')
+        self.assertEqual(small['isolates'],'i3')
+        self.assertEqual(small['resistance_genes'],'')
+        dims=read_tsv(out/'population_summary.metadata_dimension.tsv')
+        organism_rows={r['value']:r for r in dims if r['dimension']=='organism'}
+        self.assertEqual(organism_rows['E. coli']['n_isolates'],'2')
+        self.assertEqual(organism_rows['Klebsiella pneumoniae']['n_isolates'],'1')
+        self.assertNotIn('chromosomal_cluster',{r['dimension'] for r in dims})
 
 
 if __name__=='__main__':unittest.main()

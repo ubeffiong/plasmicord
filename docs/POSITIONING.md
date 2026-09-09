@@ -21,4 +21,6 @@ The common boundary is candidate FASTA, isolate mapping and available provenance
 
 The separately buildable [plasmid-annotation-core](../shared_annotation/README.md) supplies versioned local annotation, normalized coordinates, an auditable cache and a PlasBench-compatible protein export. Both applications can consume this independent component. PlasBench itself has not been modified to use it automatically, and its recovery viewer remains separate.
 
+Competitor research done for PlasmiCord surfaced a few lessons relevant to PlasBench's own reconstruction-benchmarking mission rather than PlasmiCord's; see [PlasBench recommendations](PLASBENCH_RECOMMENDATIONS.md) -- a handoff note only, not something PlasmiCord implements or depends on.
+
 This release adds biological evidence rules and public-reference threshold calibration. Next scientific steps include independently reviewed transmission cohorts, comparable chromosome typing, empirical quality-tier validation, structural confirmation, orthology/module analysis and surveillance-scale performance evaluation. See [the review](REVIEW.md).

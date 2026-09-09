@@ -22,3 +22,8 @@ The TSV requires `plasmid_id`, `sequence_sha256`, and `evidence_source`. Optiona
 | Rejected | Technical rejection or submitted independent chromosome classification |
 
 Reference accessions establish reference-annotated molecule identity, not read-backed closure. External evidence is validated for identity/schema and retained as supplied; the framework does not independently audit a submitter's classifier or contamination method. High confidence is consequently conditional on that evidence. Long, multi-segment graph traversal, automated read mapping, calibrated species-specific classifiers and empirical validation of these quality tiers remain future work.
+
+`--external-typing` cross-references (MOB-suite cluster IDs, COPLA PTU, host range -- see
+[input contract](INPUT_CONTRACT.md)) are reported alongside these tiers but never feed
+into this policy: they are opaque external identifiers, not additional evidence the
+policy above evaluates.

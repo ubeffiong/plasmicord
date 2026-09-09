@@ -93,6 +93,13 @@ Prokka/Bakta, AMRFinderPlus and MOB-typer databases. See [annotation and caching
 group/isolate/sequence leakage. See [calibration](docs/CALIBRATION.md) and
 [public-reference validation](docs/validation/README.md). Alignment agreement does not establish transmission.
 
+Add `--external-typing external_typing.tsv` to cross-reference opaque external identifiers
+(MOB-suite cluster IDs, COPLA PTU, predicted host range) without letting them influence
+PlasmiCord's own quality tiers. `plasmicord population-summary --results results_cohort`
+aggregates a completed run into cohort-level plasmid-unit and metadata-dimension summary
+tables; see [input contract](docs/INPUT_CONTRACT.md) and
+[population summary](docs/POPULATION_SUMMARY.md).
+
 ## What the final output looks like
 
 **`REPORT.html` is the primary deliverable:** a detailed offline dashboard with a fixed
@@ -144,13 +151,16 @@ the report. Browser Print can produce a static PDF; retain HTML for interactivit
 | `annotation_status.tsv`, `annotation_provenance.json` | Per-candidate stage completion, versions and cache provenance |
 | `mobility_typing.json`, `plasbench_proteins.tsv` | Aggregate typing and reusable protein-coordinate export |
 | `plasmids/`, `metadata.tsv` | Normalized sequences and metadata used in the run |
-| `plasmid_matrix.tsv`, `plasmid_clusters.tsv` | Distances and run-local PU assignments |
+| `plasmid_matrix.tsv`, `plasmid_clusters.tsv` | Distances and run-local PU assignments, incl. per-unit threshold margin |
 | `network.graphml` | Network for Cytoscape or Gephi |
 | `network.edges.tsv`, `network.isolate_units.tsv` | Sharing pairs and isolate membership |
-| `network.edge_evidence.tsv` | Pair–unit distances, direct support and shared eligible ARGs |
+| `network.edge_evidence.tsv` | Pair–unit distances, direct support, threshold margin and shared eligible ARGs |
 | `discordance.crosslinks.tsv`, `discordance.summary.txt` | Known cross-cluster sharing evidence |
 | `functional_features.tsv`, `plasmid_unit_function.tsv` | Normalized features and observed unit functions |
 | `threshold_sensitivity.tsv` | PU counts at alternative thresholds |
+| `typing_crossreference.tsv` | Opaque external identifiers (MOB-suite cluster IDs, COPLA PTU, host range); never used to compute quality tiers |
+| `containment_candidates.tsv` | Length/similarity heuristic pairs; not alignment-confirmed containment |
+| `population_summary.pu_level.tsv`, `population_summary.metadata_dimension.tsv` | Optional cohort-level aggregation from `plasmicord population-summary` |
 | `run_provenance.json` | Versions, parameters, input/output checksums and completion/failure status |
 
 ## Installation and verification

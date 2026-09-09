@@ -48,11 +48,14 @@ Software validation covers ten standalone regressions, the new gap-workflow test
 
 - Independently reviewed transmission labels, comparable chromosome typing and external-population validation.
 - Automated raw-read assembly/polishing, mapping and contamination classification. Current quality assessment consumes external measurements and automatically evaluates sequence, marker and simple graph evidence.
-- Complex graph closure, synteny, containment and structural confirmation. A replicon does not prove a complete plasmid.
+- Complex graph closure, synteny and structural confirmation remain future work. A new length/similarity heuristic (`containment_candidates.tsv`) flags candidate nested-plasmid pairs, but Mash/k-mer distance is a poor proxy for size-disparate containment (a small plasmid nearly wholly nested in a much larger one), so it only catches near-equal-length, high-similarity pairs; alignment-based (MUMmer4-style) confirmation is unimplemented and out of stdlib-only scope. A replicon does not prove a complete plasmid.
 - Empirically calibrated quality tiers, phenotypic AMR validation and organism-specific mutation analysis.
 - Orthology, validated conserved/accessory functions and defined-component module completeness.
 - Shared viewer extraction and explicit adoption of the independent library inside PlasBench.
 - Dense-matrix scaling, cohort-scale performance testing, a stable cross-run unit registry and orchestration.
 - The older MOB shell pipeline remains separate; its outputs can now enter the common gate through the native importer.
+- External typing/taxonomy cross-references (MOB-suite cluster IDs, COPLA PTU, host-range fields) can be attached via a checksum-linked `--external-typing` TSV; these remain opaque external identifiers that never influence PlasmiCord's own quality/confidence tiers.
+- Threshold-margin diagnostics (`network.edge_evidence.tsv`, `plasmid_clusters.tsv`) expose how close a link or plasmid unit is to its distance threshold, surfacing single-linkage chaining risk without changing the clustering algorithm itself.
+- An optional `plasmicord population-summary` step aggregates existing run outputs into cohort-level tables (plasmid-unit and metadata-dimension summaries), adapted to PlasmiCord's own metadata contract (`location` in place of a dedicated country field). See [PlasBench recommendations](PLASBENCH_RECOMMENDATIONS.md) for lessons from the same competitor research that apply to PlasBench's reconstruction-benchmarking mission instead.
 
 GitHub Actions remains disabled because the available authorization lacks workflow-write scope. The [CI template](ci-template.yml) includes the new tests and can be installed by a maintainer with that permission.
