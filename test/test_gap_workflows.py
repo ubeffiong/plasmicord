@@ -21,6 +21,7 @@ from python.cli import aggregate, run
 from python.external_typing import load_external_typing
 from python.containment import detect_containment
 from python.population_summary import summarize
+from python.multilayer_network import cluster_relation, multilayer_edges
 
 
 class GapWorkflows(unittest.TestCase):
@@ -111,6 +112,33 @@ class GapWorkflows(unittest.TestCase):
         rows=list(native_candidates('flye',folder,'contig_1'))
         self.assertEqual(len(rows),1)
         self.assertEqual(rows[0][2]['circularity_status'],'tool_reported')
+
+    def test_tadrep_preserves_alignment_provenance_and_leaves_circularity_unresolved(self):
+        folder=self.p/'tadrep';folder.mkdir()
+        (folder/'sample1-refA-pseudo.fna').write_text('>refA\nACGTACGTACGT\n')
+        header='plasmid\tcontig\tcontig start\tcontig end\tcontig length\tcoverage[%]\tidentity[%]\talignment length\tstrand\tplasmid start\tplasmid end\tplasmid length'
+        (folder/'sample1-summary.tsv').write_text(header+'\n'
+            'refA\tcontig_1\t1\t8\t8\t95.0\t99.0\t8\t+\t1\t8\t12\n'
+            'refA\tcontig_2\t1\t4\t4\t90.0\t97.5\t4\t+\t9\t12\t12\n')
+        rows=list(native_candidates('tadrep',folder))
+        self.assertEqual(len(rows),1)
+        name,records,extra,evidence=rows[0]
+        self.assertEqual(name,'refA')
+        self.assertEqual(extra['circularity_status'],'unresolved')
+        self.assertEqual(extra['reported_coverage'],'90.0')
+        self.assertEqual(extra['reported_identity'],'97.5')
+        self.assertEqual(extra['alignment_length_bp'],'12')
+        (folder/'sample1-summary.tsv').unlink()
+        with self.assertRaisesRegex(ValueError,'summary.tsv'):
+            list(native_candidates('tadrep',folder))
+
+    def test_tadrep_rejects_pseudo_file_with_no_matching_summary_row(self):
+        folder=self.p/'tadrep_mismatch';folder.mkdir()
+        (folder/'sample1-refB-pseudo.fna').write_text('>refB\nACGTACGTACGT\n')
+        header='plasmid\tcontig\tcontig start\tcontig end\tcontig length\tcoverage[%]\tidentity[%]\talignment length\tstrand\tplasmid start\tplasmid end\tplasmid length'
+        (folder/'sample1-summary.tsv').write_text(header+'\nrefA\tcontig_1\t1\t8\t8\t95.0\t99.0\t8\t+\t1\t8\t12\n')
+        with self.assertRaisesRegex(ValueError,'no matching rows'):
+            list(native_candidates('tadrep',folder))
 
     def test_completion_denominator_tracks_engine_not_product_category(self):
         index=[dict(plasmid_id='p',isolate_id='i')]
@@ -243,6 +271,25 @@ class GapWorkflows(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'associated_pmids'):
             load_external_typing(path,index)
 
+    def test_external_typing_validates_predicted_transmissibility_fields(self):
+        index,_=self.quality_index()
+        digest=index[0]['sequence_sha256']
+        fields=['plasmid_id','sequence_sha256','evidence_source','external_tool','predicted_transmissibility_score','predicted_transmissibility_call']
+        path=self.p/'typing.tsv'
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plastrans',
+                                    predicted_transmissibility_score='0.87',predicted_transmissibility_call='conjugative')])
+        result=load_external_typing(path,index)
+        self.assertEqual(result['p1']['predicted_transmissibility_score'],'0.87')
+        self.assertEqual(result['p1']['predicted_transmissibility_call'],'conjugative')
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plastrans',
+                                    predicted_transmissibility_score='1.5',predicted_transmissibility_call='')])
+        with self.assertRaisesRegex(ValueError,'predicted_transmissibility_score'):
+            load_external_typing(path,index)
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plastrans',
+                                    predicted_transmissibility_score='',predicted_transmissibility_call='definitely-transferable')])
+        with self.assertRaisesRegex(ValueError,'predicted_transmissibility_call'):
+            load_external_typing(path,index)
+
     def test_containment_heuristic_skips_equal_length_and_size_disparity(self):
         accepted=[dict(plasmid_id='small',isolate_id='i1',length=950),
                   dict(plasmid_id='large',isolate_id='i2',length=1000),
@@ -283,6 +330,57 @@ class GapWorkflows(unittest.TestCase):
         run(args)
         return args.out
 
+    def test_cluster_relation_labels_same_cross_and_unknown(self):
+        meta_by_iso={'i1':dict(chromosomal_cluster='CC1'),'i2':dict(chromosomal_cluster='CC1'),
+                     'i3':dict(chromosomal_cluster='CC2'),'i4':dict(chromosomal_cluster='')}
+        self.assertEqual(cluster_relation(meta_by_iso,'i1','i2'),'same_cluster')
+        self.assertEqual(cluster_relation(meta_by_iso,'i1','i3'),'cross_cluster')
+        self.assertEqual(cluster_relation(meta_by_iso,'i1','i4'),'unknown_cluster')
+        self.assertEqual(cluster_relation(meta_by_iso,'i3','i4'),'unknown_cluster')
+
+    def test_multilayer_edges_does_not_aggregate_across_shared_units(self):
+        meta_by_iso={'i1':dict(chromosomal_cluster='CC1'),'i2':dict(chromosomal_cluster='CC1')}
+        edge_details=[dict(source='i1',target='i2',plasmid_unit='PU_0001',minimum_distance=0.0,threshold_margin=.05),
+                      dict(source='i1',target='i2',plasmid_unit='PU_0002',minimum_distance=.01,threshold_margin=.04)]
+        layered=multilayer_edges(edge_details,meta_by_iso)
+        self.assertEqual(len(layered),2)
+        self.assertEqual({e['plasmid_unit'] for e in layered},{'PU_0001','PU_0002'})
+        self.assertTrue(all(e['cluster_relation']=='same_cluster' for e in layered))
+
+    def test_run_multilayer_network_flag_is_opt_in_with_correct_relations(self):
+        meta=self.p/'ml_meta.tsv'
+        write_tsv(meta,['isolate_id','chromosomal_cluster'],[
+            dict(isolate_id='i1',chromosomal_cluster='CC1'),dict(isolate_id='i2',chromosomal_cluster='CC1'),
+            dict(isolate_id='i3',chromosomal_cluster='CC2'),dict(isolate_id='i4',chromosomal_cluster='')])
+        seq_a='ACGTTGCAACGTTCAGGATCCGATACCTAGCTGACTGGTAC'
+        seq_b='TTTTGGGGCCCCAAAATTTTGGGGCCCCAAAATTTTGGGG'
+        rows=[('i1','pA1',seq_a),('i2','pA2',seq_a),('i3','pA3',seq_a),('i4','pA4',seq_a),
+              ('i1','pB1',seq_b),('i2','pB2',seq_b)]
+        manifest_rows=[]
+        for iso,pid,seq in rows:
+            path=self.p/f'{pid}.fa';path.write_text(f'>{pid}\n{seq}\n')
+            manifest_rows.append(dict(isolate_id=iso,plasmid_id=pid,fasta_path=str(path)))
+        manifest=self.p/'ml_manifest.tsv'
+        write_tsv(manifest,['isolate_id','plasmid_id','fasta_path'],manifest_rows)
+        base=dict(manifest=manifest,metadata=meta,features=None,mode='precomputed',engine='kmer',
+            threshold=.05,k=3,min_length=3,sketch_size=100,linkage='complete',annotation_config=None,external_typing=None)
+        out_off=self.p/'ml_off'
+        run(argparse.Namespace(out=out_off,**base))
+        self.assertFalse((out_off/'network.multilayer.graphml').exists())
+        self.assertFalse((out_off/'network.multilayer_edges.tsv').exists())
+        out_on=self.p/'ml_on'
+        run(argparse.Namespace(out=out_on,multilayer_network=True,**base))
+        self.assertTrue((out_on/'network.multilayer.graphml').exists())
+        layered=read_tsv(out_on/'network.multilayer_edges.tsv')
+        pair_i1_i2=[e for e in layered if {e['source'],e['target']}=={'i1','i2'}]
+        self.assertEqual(len(pair_i1_i2),2)
+        self.assertTrue(all(e['cluster_relation']=='same_cluster' for e in pair_i1_i2))
+        pair_i1_i3=[e for e in layered if {e['source'],e['target']}=={'i1','i3'}]
+        self.assertEqual(len(pair_i1_i3),1)
+        self.assertEqual(pair_i1_i3[0]['cluster_relation'],'cross_cluster')
+        pair_i1_i4=[e for e in layered if {e['source'],e['target']}=={'i1','i4'}]
+        self.assertEqual(pair_i1_i4[0]['cluster_relation'],'unknown_cluster')
+
     def test_run_rejects_invalid_containment_bounds_before_reading_inputs(self):
         args=argparse.Namespace(manifest=self.p/'does_not_exist.tsv',metadata=self.p/'also_missing.tsv',
             features=None,mode='precomputed',engine='kmer',out=self.p/'unused_out',threshold=.05,k=3,
@@ -300,6 +398,8 @@ class GapWorkflows(unittest.TestCase):
         self.assertAlmostEqual(float(edge['threshold_margin']),.05-float(edge['minimum_distance']))
         self.assertTrue((out1/'containment_candidates.tsv').exists())
         self.assertFalse((out1/'typing_crossreference.tsv').exists())
+        self.assertFalse((out1/'network.multilayer.graphml').exists())
+        self.assertFalse((out1/'network.multilayer_edges.tsv').exists())
         digest=hashlib.sha256('ACGTTGCAACGTTCAGGATCCGATACCTAGCTGACTGGTAC'.encode()).hexdigest()
         typing_path=self.p/'typing.tsv'
         write_tsv(typing_path,['plasmid_id','sequence_sha256','evidence_source','external_tool','mob_primary_cluster_id'],

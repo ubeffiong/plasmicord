@@ -19,6 +19,7 @@ from .report import build_report
 from .quality import assess, load_evidence, QUALITY_FIELDS
 from .external_typing import EXTERNAL_TYPING_FIELDS, load_external_typing
 from .containment import CONTAINMENT_FIELDS, detect_containment
+from .multilayer_network import MULTILAYER_EDGE_FIELDS, multilayer_edges, write_multilayer_graphml
 
 
 def step(script, *args):
@@ -198,6 +199,11 @@ def run(args):
                                          shared_args=";".join(sorted(shared_args)),
                                          interpretation="candidate sharing link; direct transmission unproven"))
         write_tsv(out / "network.edge_evidence.tsv", "source target plasmid_unit minimum_distance direct_threshold_support threshold_margin shared_args interpretation".split(), edge_details)
+        if getattr(args, 'multilayer_network', False):
+            meta_by_iso = {r["isolate_id"]: r for r in meta}
+            layered = multilayer_edges(edge_details, meta_by_iso)
+            write_tsv(out / "network.multilayer_edges.tsv", MULTILAYER_EDGE_FIELDS, layered)
+            write_multilayer_graphml(out / "network.multilayer.graphml", layered)
         containment_rows = detect_containment(accepted, ids, pos, distances,
             containment_min_ratio, containment_max_ratio, containment_max_distance)
         write_tsv(out / "containment_candidates.tsv", CONTAINMENT_FIELDS, containment_rows)
@@ -277,6 +283,7 @@ def main():
     p.add_argument("--containment-min-ratio", type=float, default=0.5, help="Minimum small/large length ratio for the containment heuristic")
     p.add_argument("--containment-max-ratio", type=float, default=0.95, help="Maximum small/large length ratio for the containment heuristic (equal-length pairs are excluded)")
     p.add_argument("--containment-max-distance", type=float, help="Maximum pairwise distance for the containment heuristic (defaults to --threshold)")
+    p.add_argument("--multilayer-network", action="store_true", help="Also write a per-plasmid-unit multilayer GraphML/TSV, each edge tagged with cluster_relation")
     p.set_defaults(func=run)
     p = subs.add_parser("demo", help="Run seeded synthetic data with illustrative functional annotations")
     p.add_argument("--out", type=Path, default=Path("results_demo"))

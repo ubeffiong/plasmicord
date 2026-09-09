@@ -49,3 +49,9 @@ This is an integration test on two real plasmids, not an annotation-accuracy ben
 ## Software checks
 
 Ten standalone regressions, 17 gap-workflow tests, both original algorithm suites, Windows synthetic runs, WSL Mash/annotation runs, native PlasBench-export import, independent package builds/install checks and offline Chromium report checks were performed. PlasBench native import used its existing synthetic audit export and is not counted as real-cohort evidence.
+
+## Candidate future cohorts
+
+[docs/validation/SHIGELLA_COHORT.md](SHIGELLA_COHORT.md) records a real, public,
+accession-backed cohort (BioProject PRJNA857526) found while researching adoptable ideas
+from external repos. It is not yet part of this validation record — see that note for why.

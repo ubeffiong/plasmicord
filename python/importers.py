@@ -1,10 +1,11 @@
 """Native output adapters preserve candidate boundaries and producer provenance."""
+from collections import defaultdict
 import json
 import re
 from pathlib import Path
 from .contracts import fasta_records, read_tsv, write_tsv, checksum, metadata, validate_manifest, resolve_path, INDEX_FIELDS
 
-ADAPTERS = ("generic-fasta", "mob-recon", "flye", "unicycler", "plasbench")
+ADAPTERS = ("generic-fasta", "mob-recon", "flye", "unicycler", "plasbench", "tadrep")
 
 
 def safe_id(text):
@@ -94,6 +95,37 @@ def native_candidates(adapter, source, selectors="", group_contigs=False):
             yield name, records, dict(source_tool=report.get("selected_tool", "unknown"),
                 selection_evidence_path=str(reports[0]), selection_method=report.get("selection_type", "unknown"),
                 assembly_method=report.get("analysis_track", "unknown")), [file, reports[0]]
+    elif adapter == "tadrep":
+        files = sorted(source.glob("*-pseudo.fna"))
+        if not files:
+            raise ValueError("TaDReP import requires at least one reconstructed <sample>-<reference>-pseudo.fna file")
+        summaries = sorted(source.glob("*-summary.tsv"))
+        if len(summaries) != 1:
+            raise ValueError("TaDReP directory must contain exactly one <sample>-summary.tsv")
+        # TaDReP reports no circularity/completeness data; never infer it from alignment identity.
+        rows = read_tsv(summaries[0], ('plasmid', 'coverage[%]', 'identity[%]', 'alignment length'))
+        by_reference = defaultdict(list)
+        for r in rows:
+            by_reference[r['plasmid']].append(r)
+        seen = set()
+        for file in files:
+            records = fasta_records(file)
+            if len(records) != 1:
+                raise ValueError(f"TaDReP pseudo-plasmid file must contain exactly one record: {file}")
+            name, seq = records[0]
+            if name in seen:
+                raise ValueError(f"A TaDReP reference plasmid occurs in multiple pseudo files: {name}")
+            seen.add(name)
+            matches = by_reference.get(name)
+            if not matches:
+                raise ValueError(f"{file}: no matching rows for reference plasmid '{name}' in {summaries[0].name}")
+            # Conservative floor across contributing contig-level alignment rows, not a best-case pick.
+            coverage = min(float(r['coverage[%]']) for r in matches)
+            identity = min(float(r['identity[%]']) for r in matches)
+            alignment_length = sum(int(r['alignment length']) for r in matches)
+            yield name, records, dict(assembly_method="reference_guided_reconstruction",
+                circularity_status="unresolved", reported_coverage=str(coverage),
+                reported_identity=str(identity), alignment_length_bp=str(alignment_length)), [file, summaries[0]]
     else:
         records = fasta_records(source)
         if group_contigs:
@@ -141,7 +173,7 @@ def import_inputs(args):
     (out / "plasmids").mkdir()
     for row, records in candidates:
         (out / row["fasta_path"]).write_text("".join(f">{name}\n{seq}\n" for name, seq in records), encoding="utf-8")
-    extra_fields = ["reported_coverage", "selection_evidence_path", "selection_method"]
+    extra_fields = ["reported_coverage", "reported_identity", "alignment_length_bp", "selection_evidence_path", "selection_method"]
     write_tsv(out / "manifest.tsv", INDEX_FIELDS + extra_fields, [r for r, _ in candidates])
     meta_fields = ["isolate_id", "chromosomal_cluster", "date", "location", "organism"]
     write_tsv(out / "metadata.tsv", meta_fields, samples)

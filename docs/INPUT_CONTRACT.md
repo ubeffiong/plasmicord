@@ -96,10 +96,16 @@ details; automated orthology and module analysis are not implemented.
 PlasmiCord does not compute itself: `mob_primary_cluster_id`, `mob_secondary_cluster_id`,
 `mob_cluster_distance_definition`, `ptu_assignment`, `ptu_confidence`,
 `predicted_host_range_overall_rank`, `predicted_host_range_overall_name`,
-`associated_pmids`. Required columns are `plasmid_id`, `sequence_sha256`,
-`evidence_source`, `external_tool`. `sequence_sha256` must match the candidate's checksum;
-`plasmid_id` must be unique in the file. `ptu_confidence` is `low`/`medium`/`high` or a
-number in `[0,100]`. `associated_pmids` is semicolon-separated numeric PubMed IDs.
+`associated_pmids`, `predicted_transmissibility_score`, `predicted_transmissibility_call`,
+`predicted_transmissibility_tool`, `predicted_transmissibility_tool_version`. Required
+columns are `plasmid_id`, `sequence_sha256`, `evidence_source`, `external_tool`.
+`sequence_sha256` must match the candidate's checksum; `plasmid_id` must be unique in the
+file. `ptu_confidence` is `low`/`medium`/`high` or a number in `[0,100]`. `associated_pmids`
+is semicolon-separated numeric PubMed IDs. `predicted_transmissibility_score` is a number in
+`[0,1]`; `predicted_transmissibility_call` is `conjugative`/`mobilizable`/`non-mobilizable`/`uncertain`
+-- generic fields for any sequence-based transmissibility classifier's output (e.g.
+[PlasTrans](https://github.com/zhenchengfang/PlasTrans)'s codon-usage CNN score), not tied to
+one specific tool.
 
 **These fields are opaque external identifiers.** PlasmiCord does not validate, recompute
 or interpret them, and they never influence quality/confidence tiers -- see
@@ -124,6 +130,32 @@ detect size-disparate containment (a small plasmid nested in a much larger one) 
 [REVIEW.md](REVIEW.md) for why. The default `--containment-max-ratio 0.95` deliberately
 excludes equal-length pairs (identity/PU territory, not containment); widening it to `1.0`
 would include them.
+
+## Multilayer network export
+
+`--multilayer-network` (opt-in; no files are written when omitted) additionally writes
+`network.multilayer.graphml` and `network.multilayer_edges.tsv`. Unlike the default
+`network.graphml`/`network.edges.tsv` (which aggregate all shared plasmid units into one
+edge per isolate pair), the multilayer export writes **one edge per `(isolate pair,
+plasmid unit)`** -- each plasmid unit is naturally one layer -- and tags every edge with
+`cluster_relation`: `same_cluster`, `cross_cluster`, or `unknown_cluster` (either isolate's
+`chromosomal_cluster` is blank), directly surfacing the relation the discordance feature
+already cares about. This is a lightweight, stdlib-only relabeling of edges PlasmiCord
+already computes by fields it already has -- not a true node-multiplex/projection framework
+(e.g. `pymnet`/`multinet`); see [REVIEW.md](REVIEW.md) for the scoping note.
+
+## PlasAnn interoperability
+
+[PlasAnn](https://github.com/ajlopatkin/PlasAnn) (Prodigal+BLAST+Infernal) overlaps mostly
+with annotation PlasmiCord already gets from wrapped Prokka/Bakta/AMRFinderPlus/MOB-typer,
+except for oriT/oriV and transposon calls, which are not otherwise covered. Its output maps
+onto the functional feature TSV's existing generic columns without any schema change:
+gene coordinates/strand to `start`/`end`/`strand`; oriT/oriV presence to
+`functional_category=origin_of_transfer`, `gene_symbol`/`product_name` describing the
+element; transposon calls to `functional_category=transposon`; set
+`detection_method`/`annotation_engine=PlasAnn` and `reference_accession` to the matched
+database entry. Use this mapping only for oriT/oriV/transposon evidence -- PlasAnn is not a
+replacement for the wrapped annotation pipeline.
 
 ## PlasBench interoperability
 

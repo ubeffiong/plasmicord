@@ -94,11 +94,13 @@ group/isolate/sequence leakage. See [calibration](docs/CALIBRATION.md) and
 [public-reference validation](docs/validation/README.md). Alignment agreement does not establish transmission.
 
 Add `--external-typing external_typing.tsv` to cross-reference opaque external identifiers
-(MOB-suite cluster IDs, COPLA PTU, predicted host range) without letting them influence
-PlasmiCord's own quality tiers. `plasmicord population-summary --results results_cohort`
-aggregates a completed run into cohort-level plasmid-unit and metadata-dimension summary
-tables; see [input contract](docs/INPUT_CONTRACT.md) and
-[population summary](docs/POPULATION_SUMMARY.md).
+(MOB-suite cluster IDs, COPLA PTU, predicted host range, or a sequence-based transmissibility
+classifier's score/call) without letting them influence PlasmiCord's own quality tiers.
+`plasmicord population-summary --results results_cohort` aggregates a completed run into
+cohort-level plasmid-unit and metadata-dimension summary tables; see
+[input contract](docs/INPUT_CONTRACT.md) and [population summary](docs/POPULATION_SUMMARY.md).
+Add `--multilayer-network` to `plasmicord run` for an additional per-plasmid-unit GraphML/TSV
+export, each edge tagged with whether it stays within or crosses a known chromosomal cluster.
 
 ## What the final output looks like
 
@@ -161,6 +163,7 @@ the report. Browser Print can produce a static PDF; retain HTML for interactivit
 | `typing_crossreference.tsv` | Present only with `--external-typing`; opaque external identifiers (MOB-suite cluster IDs, COPLA PTU, host range), never used to compute quality tiers |
 | `containment_candidates.tsv` | Length/similarity heuristic pairs; not alignment-confirmed containment |
 | `population_summary.pu_level.tsv`, `population_summary.metadata_dimension.tsv` | Optional cohort-level aggregation from `plasmicord population-summary` |
+| `network.multilayer.graphml`, `network.multilayer_edges.tsv` | Present only with `--multilayer-network`; one edge per (isolate pair, plasmid unit), tagged with `cluster_relation` |
 | `run_provenance.json` | Versions, parameters, input/output checksums and completion/failure status |
 
 ## Installation and verification

@@ -10,7 +10,12 @@ from .contracts import checksum, read_tsv
 EXTERNAL_TYPING_FIELDS = ("plasmid_id sequence_sha256 evidence_source external_tool external_tool_version "
                           "mob_primary_cluster_id mob_secondary_cluster_id mob_cluster_distance_definition "
                           "ptu_assignment ptu_confidence predicted_host_range_overall_rank "
-                          "predicted_host_range_overall_name associated_pmids evidence_sha256").split()
+                          "predicted_host_range_overall_name associated_pmids "
+                          "predicted_transmissibility_score predicted_transmissibility_call "
+                          "predicted_transmissibility_tool predicted_transmissibility_tool_version "
+                          "evidence_sha256").split()
+
+TRANSMISSIBILITY_CALLS = {"conjugative", "mobilizable", "non-mobilizable", "uncertain"}
 
 
 def load_external_typing(path, index):
@@ -36,6 +41,17 @@ def load_external_typing(path, index):
         pmids = row.get("associated_pmids", "")
         if pmids and not all(re.fullmatch(r"\d+", pmid) for pmid in pmids.split(";")):
             raise ValueError(f"{pid}: associated_pmids must be semicolon-separated numeric PubMed IDs")
+        score = row.get("predicted_transmissibility_score", "")
+        if score:
+            try:
+                score_value = float(score)
+            except ValueError:
+                raise ValueError(f"{pid}: predicted_transmissibility_score must be a number in [0,1]") from None
+            if not 0 <= score_value <= 1:
+                raise ValueError(f"{pid}: predicted_transmissibility_score must be a number in [0,1]")
+        call = row.get("predicted_transmissibility_call", "")
+        if call and call.lower() not in TRANSMISSIBILITY_CALLS:
+            raise ValueError(f"{pid}: predicted_transmissibility_call must be one of {sorted(TRANSMISSIBILITY_CALLS)}")
         row["evidence_sha256"] = evidence_sha256
         typing[pid] = row
     return typing

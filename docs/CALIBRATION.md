@@ -27,3 +27,16 @@ The independent reference workflow is:
 4. Run the calibration command.
 
 Alignment-positive defaults require ≥99.5% weighted HSP identity and ≥90% union coverage of both sequences in both directions. Negative requires <50% coverage in both directions; intermediate cases are uncertain. Repetitive HSPs are not a one-to-one synteny assessment. These comparators evaluate sequence-relatedness agreement; they are not reviewed epidemiological transmission labels. Pair observations within studies are correlated; no population confidence interval is claimed.
+
+## Relationship to phylodynamic transfer-rate inference
+
+This calibration fits a single static distance threshold against labeled pairs -- a
+lightweight, cohort-agnostic heuristic. It is not a substitute for full phylodynamic
+inference. Müller et al.'s joint coalescent + plasmid-transfer model (BEAST2/CoalPT; see
+[Plasmids-material](https://github.com/nicfel/Plasmids-material), *Quantifying plasmid
+movement in drug-resistant Shigella species using phylodynamic inference*, PLOS Pathogens
+2025) jointly models chromosome and plasmid trees to estimate transfer/loss rates over time
+-- structurally more rigorous, but requiring BEAST2/MCMC and per-lineage tree inference, out
+of PlasmiCord's stdlib-only scope. See [the Shigella cohort note](validation/SHIGELLA_COHORT.md)
+for a real, accession-backed dataset from the same paper recorded as a scoped future
+validation-cohort candidate.
