@@ -119,7 +119,9 @@ def native_candidates(adapter, source, selectors="", group_contigs=False):
             matches = by_reference.get(name)
             if not matches:
                 raise ValueError(f"{file}: no matching rows for reference plasmid '{name}' in {summaries[0].name}")
-            # Conservative floor across contributing contig-level alignment rows, not a best-case pick.
+            # Coverage/identity: conservative floor across contributing contig-level rows, not a
+            # best-case pick. Alignment length: additive across contigs, not a floor -- it is a
+            # base-pair count, not a percentage, so summing the contributing rows is correct.
             coverage = min(float(r['coverage[%]']) for r in matches)
             identity = min(float(r['identity[%]']) for r in matches)
             alignment_length = sum(int(r['alignment length']) for r in matches)

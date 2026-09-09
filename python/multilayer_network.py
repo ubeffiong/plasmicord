@@ -28,7 +28,10 @@ def multilayer_edges(edge_details, meta_by_iso):
             for e in edge_details]
 
 
-def write_multilayer_graphml(path, edges):
+def write_multilayer_graphml(path, edges, isolates):
+    """`isolates` should be every isolate in metadata (matching build_network.py's
+    default network.graphml convention: every metadata isolate is a node, even
+    plasmid-free ones with no edges) -- not just those appearing in `edges`."""
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
              '<graphml xmlns="http://graphml.graphdrawing.org/xmlns">',
              '  <key id="e_layer" for="edge" attr.name="plasmid_unit" attr.type="string"/>',
@@ -36,14 +39,14 @@ def write_multilayer_graphml(path, edges):
              '  <key id="e_distance" for="edge" attr.name="minimum_distance" attr.type="double"/>',
              '  <key id="e_margin" for="edge" attr.name="threshold_margin" attr.type="double"/>',
              '  <graph edgedefault="undirected">']
-    for node in sorted({n for e in edges for n in (e['source'], e['target'])}):
+    for node in sorted(set(isolates)):
         lines.append(f'    <node id="{escape(node)}"/>')
     for i, e in enumerate(edges):
         lines.append(f'    <edge id="e{i}" source="{escape(e["source"])}" target="{escape(e["target"])}">')
         lines.append(f'      <data key="e_layer">{escape(e["plasmid_unit"])}</data>')
         lines.append(f'      <data key="e_relation">{escape(e["cluster_relation"])}</data>')
-        lines.append(f'      <data key="e_distance">{e["minimum_distance"]}</data>')
-        lines.append(f'      <data key="e_margin">{e["threshold_margin"]}</data>')
+        lines.append(f'      <data key="e_distance">{escape(str(e["minimum_distance"]))}</data>')
+        lines.append(f'      <data key="e_margin">{escape(str(e["threshold_margin"]))}</data>')
         lines.append('    </edge>')
     lines.append('  </graph>')
     lines.append('</graphml>')

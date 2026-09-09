@@ -76,7 +76,7 @@ confirm prioritized links using sequence alignment, assembly evidence and epidem
 
 Use `--mode longread`, `hybrid`, or `plasbench` to describe the source. These modes
 all use the same normalized manifest and validation gate. `plasmicord import` adapts
-native MOB-recon, Flye, Unicycler, PlasBench and generic FASTA outputs;
+native MOB-recon, Flye, Unicycler, PlasBench, TaDReP and generic FASTA outputs;
 see [native imports](docs/IMPORTS.md).
 Raw FASTQ is rejected; assemble, polish and identify plasmid candidates upstream.
 

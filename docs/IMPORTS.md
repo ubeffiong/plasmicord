@@ -19,7 +19,7 @@ plasmicord run --manifest imported_mob/manifest.tsv --metadata imported_mob/meta
 | Unicycler | `assembly.fasta`; explicit record selection required; preserves native circular headers and graph provenance |
 | PlasBench | One selection report and selected plasmid FASTA; ambiguous multi-record candidates require explicit selection or grouping |
 | Generic FASTA | Single candidate, explicit selected records, or deliberate `--group-contigs` for one fragmented candidate |
-| [TaDReP](https://github.com/oschwengers/tadrep) | One `<sample>-summary.tsv` and one or more `<sample>-<reference>-pseudo.fna`; each reconstructed reference plasmid is one candidate automatically; preserves coverage/identity/alignment-length as the conservative floor across contributing contig rows |
+| [TaDReP](https://github.com/oschwengers/tadrep) | One `<sample>-summary.tsv` and one or more `<sample>-<reference>-pseudo.fna`; each reconstructed reference plasmid is one candidate automatically; preserves coverage/identity as the conservative floor and alignment length as the sum across contributing contig rows |
 
 For batches, replace `--input` and `--isolate-id` with `--samples samples.tsv`. Required columns: `isolate_id,input_path` (tab-separated); optional `record_ids,source_tool_version,chromosomal_cluster,date,location,organism`. Paths resolve from the samples file. Record IDs are comma-separated.
 

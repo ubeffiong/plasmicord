@@ -140,6 +140,23 @@ class GapWorkflows(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'no matching rows'):
             list(native_candidates('tadrep',folder))
 
+    def test_tadrep_rejects_multi_record_pseudo_file(self):
+        folder=self.p/'tadrep_multi';folder.mkdir()
+        (folder/'sample1-refA-pseudo.fna').write_text('>refA\nACGTACGTACGT\n>extra\nTGCATGCATGCA\n')
+        header='plasmid\tcontig\tcontig start\tcontig end\tcontig length\tcoverage[%]\tidentity[%]\talignment length\tstrand\tplasmid start\tplasmid end\tplasmid length'
+        (folder/'sample1-summary.tsv').write_text(header+'\nrefA\tcontig_1\t1\t8\t8\t95.0\t99.0\t8\t+\t1\t8\t12\n')
+        with self.assertRaisesRegex(ValueError,'exactly one record'):
+            list(native_candidates('tadrep',folder))
+
+    def test_tadrep_rejects_duplicate_reference_across_pseudo_files(self):
+        folder=self.p/'tadrep_dup';folder.mkdir()
+        (folder/'sample1-refA-pseudo.fna').write_text('>refA\nACGTACGTACGT\n')
+        (folder/'sample2-refA-pseudo.fna').write_text('>refA\nACGTACGTACGT\n')
+        header='plasmid\tcontig\tcontig start\tcontig end\tcontig length\tcoverage[%]\tidentity[%]\talignment length\tstrand\tplasmid start\tplasmid end\tplasmid length'
+        (folder/'sample1-summary.tsv').write_text(header+'\nrefA\tcontig_1\t1\t8\t8\t95.0\t99.0\t8\t+\t1\t8\t12\n')
+        with self.assertRaisesRegex(ValueError,'multiple pseudo files'):
+            list(native_candidates('tadrep',folder))
+
     def test_completion_denominator_tracks_engine_not_product_category(self):
         index=[dict(plasmid_id='p',isolate_id='i')]
         features=[dict(plasmid_id='p',isolate_id='i',plasmid_unit='PU',feature_id='f',
@@ -289,6 +306,10 @@ class GapWorkflows(unittest.TestCase):
                                     predicted_transmissibility_score='',predicted_transmissibility_call='definitely-transferable')])
         with self.assertRaisesRegex(ValueError,'predicted_transmissibility_call'):
             load_external_typing(path,index)
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plastrans',
+                                    predicted_transmissibility_score='high',predicted_transmissibility_call='')])
+        with self.assertRaisesRegex(ValueError,'predicted_transmissibility_score'):
+            load_external_typing(path,index)
 
     def test_containment_heuristic_skips_equal_length_and_size_disparity(self):
         accepted=[dict(plasmid_id='small',isolate_id='i1',length=950),
@@ -351,7 +372,8 @@ class GapWorkflows(unittest.TestCase):
         meta=self.p/'ml_meta.tsv'
         write_tsv(meta,['isolate_id','chromosomal_cluster'],[
             dict(isolate_id='i1',chromosomal_cluster='CC1'),dict(isolate_id='i2',chromosomal_cluster='CC1'),
-            dict(isolate_id='i3',chromosomal_cluster='CC2'),dict(isolate_id='i4',chromosomal_cluster='')])
+            dict(isolate_id='i3',chromosomal_cluster='CC2'),dict(isolate_id='i4',chromosomal_cluster=''),
+            dict(isolate_id='i5',chromosomal_cluster='CC1')])  # plasmid-free: must still appear as a node
         seq_a='ACGTTGCAACGTTCAGGATCCGATACCTAGCTGACTGGTAC'
         seq_b='TTTTGGGGCCCCAAAATTTTGGGGCCCCAAAATTTTGGGG'
         rows=[('i1','pA1',seq_a),('i2','pA2',seq_a),('i3','pA3',seq_a),('i4','pA4',seq_a),
@@ -380,6 +402,8 @@ class GapWorkflows(unittest.TestCase):
         self.assertEqual(pair_i1_i3[0]['cluster_relation'],'cross_cluster')
         pair_i1_i4=[e for e in layered if {e['source'],e['target']}=={'i1','i4'}]
         self.assertEqual(pair_i1_i4[0]['cluster_relation'],'unknown_cluster')
+        graphml=(out_on/'network.multilayer.graphml').read_text(encoding='utf-8')
+        self.assertIn('<node id="i5"/>',graphml)
 
     def test_run_rejects_invalid_containment_bounds_before_reading_inputs(self):
         args=argparse.Namespace(manifest=self.p/'does_not_exist.tsv',metadata=self.p/'also_missing.tsv',

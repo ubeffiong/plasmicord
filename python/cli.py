@@ -203,7 +203,7 @@ def run(args):
             meta_by_iso = {r["isolate_id"]: r for r in meta}
             layered = multilayer_edges(edge_details, meta_by_iso)
             write_tsv(out / "network.multilayer_edges.tsv", MULTILAYER_EDGE_FIELDS, layered)
-            write_multilayer_graphml(out / "network.multilayer.graphml", layered)
+            write_multilayer_graphml(out / "network.multilayer.graphml", layered, meta_by_iso.keys())
         containment_rows = detect_containment(accepted, ids, pos, distances,
             containment_min_ratio, containment_max_ratio, containment_max_distance)
         write_tsv(out / "containment_candidates.tsv", CONTAINMENT_FIELDS, containment_rows)
