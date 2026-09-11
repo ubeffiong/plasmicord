@@ -23,19 +23,21 @@ if(!D.report.bundle){$('bundle-link').hidden=true;$('bundle-top').hidden=true;}
 function exportSVG(root,name){const copy=root.cloneNode(true);copy.setAttribute('xmlns',NS);const originals=root.querySelectorAll('*'),clones=copy.querySelectorAll('*');originals.forEach((el,i)=>{const style=getComputedStyle(el);for(const key of ['fill','stroke','font-family','font-size'])clones[i].style.setProperty(key,style.getPropertyValue(key));});downloadText(name+'.svg',new XMLSerializer().serializeToString(copy),'image/svg+xml');}
 function chartActions(container,root,rows,name){const actions=document.createElement('div');actions.className='chart-actions';const a=document.createElement('button');a.textContent='Download SVG';a.onclick=()=>exportSVG(root,name);const b=document.createElement('button');b.textContent='All chart data TSV';b.onclick=()=>downloadText(name+'.tsv',tsvText(rows,unique(rows.flatMap(r=>Object.keys(r)))),'text/tab-separated-values;charset=utf-8');actions.append(a,b);container.append(actions);}
 function barChart(id,all,opts={}){
- const container=$(id),rows=all.slice(0,opts.limit||20);container.replaceChildren();
+ const container=$(id),rows=all.slice(0,opts.limit||20),scaleMode=opts.scale||'linear',tf=v=>scaleMode==='log'?Math.log10(Number(v)+1):Number(v);
+ container.replaceChildren();
  if(!rows.length){container.innerHTML='<p class="empty">No observations available. See module status for evaluation coverage.</p>';return;}
- const width=520,height=rows.length*33+35,max=Math.max(1,...rows.map(r=>r.denominator??r.value)),labelWidth=172,plotWidth=285;
+ const width=520,height=rows.length*33+35,linearMax=Math.max(1,...rows.map(r=>Number(r.denominator??r.value))),max=Math.max(1,...rows.map(r=>tf(r.denominator??r.value))),labelWidth=172,plotWidth=285;
  const root=svg('svg',{viewBox:'0 0 '+width+' '+height,role:'img','aria-label':opts.title||human(id),class:'chart'},container);
  rows.forEach((r,i)=>{const y=i*33+10,fill=opts.quality?({high_confidence:'var(--pass)',moderate_confidence:'var(--info)',low_confidence:'var(--warn)',uncertain:'var(--neutral)',rejected:'var(--fail)'}[r.label]||'var(--info)'):'#187c90';
  const text=svg('text',{x:0,y:y+14,fill:'#294859'},root);text.textContent=human(r.label).length>25?human(r.label).slice(0,23)+'…':human(r.label);svg('title',{},text).textContent=human(r.label);
  svg('rect',{x:labelWidth,y,width:plotWidth,height:20,rx:3,fill:'#edf2f5'},root);
- const mark=svg('rect',{x:labelWidth,y,width:plotWidth*r.value/max,height:20,rx:3,fill,tabindex:0,role:'button',class:'chart-mark','aria-label':r.label+': '+r.value+(r.denominator!==undefined?' of '+r.denominator:'')},root);
+ const mark=svg('rect',{x:labelWidth,y,width:plotWidth*tf(r.value)/max,height:20,rx:3,fill,tabindex:0,role:'button',class:'chart-mark','aria-label':r.label+': '+r.value+(r.denominator!==undefined?' of '+r.denominator:'')},root);
  const description=r.label+': '+r.value+(r.denominator!==undefined?' / '+r.denominator:'')+'. '+(opts.note||'Count from the full cohort.');
  svg('title',{},mark).textContent=description;mark.onclick=()=>{if(opts.onClick)opts.onClick(r);else $('chart-description-'+id).textContent=description;};mark.onkeydown=e=>{if(e.key==='Enter')mark.onclick();};
  svg('text',{x:labelWidth+plotWidth+7,y:y+14,fill:'#294859'},root).textContent=String(r.value)+(r.denominator!==undefined?'/'+r.denominator:'');});
- svg('text',{x:labelWidth,y:height-2,fill:'#526875'},root).textContent='0';svg('text',{x:labelWidth+plotWidth,y:height-2,'text-anchor':'end',fill:'#526875'},root).textContent=max+' candidates / observations';
+ svg('text',{x:labelWidth,y:height-2,fill:'#526875'},root).textContent='0';svg('text',{x:labelWidth+plotWidth,y:height-2,'text-anchor':'end',fill:'#526875'},root).textContent=linearMax+' candidates / observations'+(scaleMode==='log'?' (log-scaled bar lengths)':'');
  const desc=document.createElement('p');desc.className='muted';desc.id='chart-description-'+id;desc.setAttribute('aria-live','polite');desc.textContent=all.length>rows.length?'Showing '+rows.length+' of '+all.length+' categories; export includes every category.':'Select a bar for its exact value.';container.append(desc);chartActions(container,root,all,id);
+ if(opts.logToggle){const toggle=document.createElement('button');toggle.textContent=scaleMode==='log'?'Switch to linear scale':'Switch to log scale';toggle.title='Log view changes only the bar-length mapping for visual comparison across very different magnitudes; the printed value and TSV export always show the true linear count.';toggle.onclick=()=>barChart(id,all,{...opts,scale:scaleMode==='log'?'linear':'log'});container.querySelector('.chart-actions').append(toggle);}
 }
 barChart('chart-quality',C.quality,{quality:true,title:'Quality status of submitted candidates'});
 barChart('chart-lengths',C.lengths,{title:'Lengths of accepted plasmid candidates'});
@@ -43,7 +45,7 @@ barChart('chart-annotation',C.annotation,{title:'Completed annotation stages by 
 barChart('chart-functions',C.functions,{title:'Observed functional category carriers',note:C.denominators.functions});
 barChart('chart-metadata',C.metadata,{title:'Metadata coverage by isolate'});
 barChart('chart-timeline',C.timeline,{title:'Isolate collection month counts',note:C.denominators.timeline});
-barChart('chart-units',C.units,{title:'Candidate members per plasmid unit',onClick:r=>{$('unit').value=r.label;selectUnit();$('cargo').scrollIntoView({block:'start'});}});
+barChart('chart-units',C.units,{title:'Candidate members per plasmid unit',logToggle:true,onClick:r=>{$('unit').value=r.label;selectUnit();$('cargo').scrollIntoView({block:'start'});}});
 barChart('chart-drugs',C.drugs,{title:'Candidate carriers of eligible ARG drug classes',note:C.denominators.drugs});
 function sensitivityChart(){
  const rows=D.sensitivity,container=$('chart-sensitivity');if(!rows.length){container.innerHTML='<p class="empty">No completed threshold sweep.</p>';return;}
@@ -59,6 +61,28 @@ function sensitivityChart(){
  const p=document.createElement('p');p.id='sensitivity-caption';p.textContent='Teal: all units. Brown: singleton units. X: distance threshold; Y: unit count.';container.append(p);chartActions(container,root,rows,'threshold-sensitivity');
 }
 sensitivityChart();
+function isolateTimeline(){
+ const root=$('timeline');if(!root)return;root.replaceChildren();
+ const width=960,height=260,left=40,right=920,base=200;
+ root.setAttribute('viewBox','0 0 '+width+' '+height);
+ const dated=D.metadata.filter(m=>m.date&&!isNaN(Date.parse(m.date))),undated=D.metadata.filter(m=>!(m.date&&!isNaN(Date.parse(m.date))));
+ const datedIds=new Set(dated.map(m=>m.isolate_id));
+ const shown=[],hidden=[];D.edge_evidence.forEach(e=>{(datedIds.has(e.source)&&datedIds.has(e.target)?shown:hidden).push(e);});
+ if(!dated.length){svg('text',{x:20,y:100,fill:'#52676e'},root).textContent='No isolates with a usable collection date.';}
+ else{
+  const times=dated.map(m=>Date.parse(m.date)),xmin=Math.min(...times),xmax=Math.max(...times,xmin+1);
+  const x=t=>left+(t-xmin)/(xmax-xmin)*(right-left),pos={};dated.forEach(m=>{pos[m.isolate_id]=x(Date.parse(m.date));});
+  svg('line',{x1:left,y1:base,x2:right,y2:base,stroke:'#9eb0bd'},root);
+  shown.forEach(e=>{const x1=pos[e.source],x2=pos[e.target],mid=(x1+x2)/2,arc=Math.min(90,Math.abs(x2-x1)/2+20),cross=crossCluster(e);
+   const path=svg('path',{d:'M'+x1+' '+base+' Q '+mid+' '+(base-arc)+' '+x2+' '+base,fill:'none',stroke:cross?'#b34e32':'#9cadb1','stroke-width':2,tabindex:0,role:'button','aria-label':e.source+' to '+e.target},root);
+   svg('title',{},path).textContent=e.source+' ↔ '+e.target+' · '+e.plasmid_unit+' · minimum distance '+e.minimum_distance;
+   svg('text',{x:mid,y:base-arc-4,'text-anchor':'middle',fill:'#526875',style:'font-size:10px'},root).textContent=e.minimum_distance;});
+  dated.forEach(m=>{const cx=pos[m.isolate_id],el=svg('circle',{cx,cy:base,r:6,fill:'#187c90',stroke:'white','stroke-width':2,tabindex:0,role:'button','aria-label':m.isolate_id},root);svg('title',{},el).textContent=m.isolate_id+' · '+m.date;el.onclick=()=>selectIsolate(m.isolate_id);el.onkeydown=ev=>{if(ev.key==='Enter')selectIsolate(m.isolate_id);};svg('text',{x:cx,y:base+18,'text-anchor':'middle',fill:'#172f38',style:'font-size:10px'},root).textContent=m.isolate_id;});
+ }
+ $('timeline-undated-isolates').textContent=undated.length?undated.length+' isolate(s) without a usable collection date: '+undated.map(m=>m.isolate_id).join(', ')+' (not omitted from the cohort; see Individual isolates).':'';
+ table('timeline-undated-edges',hidden,['source','target','plasmid_unit','minimum_distance']);
+}
+isolateTimeline();
 const V=D.distance_view;
 $('distance-note').textContent='Distance engine: '+D.provenance.distance_engine+'; k='+D.provenance.k+'; sketch size '+(D.provenance.sketch_size??'not applicable')+'; linkage '+D.provenance.linkage+'. Distance is not measured sequence identity or transmission probability.';
 $('heatmap-scope').textContent=V.ids.length?(V.limited?'Display limited to the first '+V.limit+' of '+V.total+' candidates. ':'All '+V.ids.length+' candidates shown. ')+'Dark teal indicates smaller distance; pale cells indicate larger distance, scaled to this displayed matrix. Use pair selectors for exact values; the complete matrix is in the output explorer.':'No completed distance matrix is available.';

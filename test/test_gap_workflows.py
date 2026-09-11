@@ -22,6 +22,7 @@ from python.external_typing import load_external_typing
 from python.containment import detect_containment
 from python.population_summary import summarize
 from python.multilayer_network import cluster_relation, multilayer_edges
+from python.cluster_plasmids import effective_threshold, cluster_single, cluster_complete
 
 
 class GapWorkflows(unittest.TestCase):
@@ -211,6 +212,34 @@ class GapWorkflows(unittest.TestCase):
         graph.write_text('S\tc1\tAAAA\nL\tc1\t+\tc1\t+\t0M\n')
         self.assertEqual(graph_closure(graph,seq['p1']),'unresolved')
 
+    def test_copy_number_is_recorded_but_never_influences_quality_status(self):
+        index,seq=self.quality_index()
+        graph=self.p/'graph.gfa';graph.write_text(f"S\tc1\t{seq['p1'][0][1]}\nL\tc1\t+\tc1\t+\t0M\n")
+        index[0]['assembly_graph_path']=str(graph)
+        base=dict(classification='plasmid',read_breadth='1',mean_depth='30',chromosome_fraction='0',evidence_source='reference and reads')
+        without_copy_number=assess([dict(index[0])],seq,evidence={'p1':dict(base)})[0]
+        with_copy_number=assess([dict(index[0])],seq,evidence={'p1':dict(base,copy_number='12.5')})[0]
+        self.assertEqual(with_copy_number['copy_number'],'12.5')
+        self.assertEqual(without_copy_number['copy_number'],'')
+        for key in without_copy_number:
+            if key=='copy_number':
+                continue
+            self.assertEqual(with_copy_number[key],without_copy_number[key],f'copy_number must not change {key}')
+
+    def test_load_evidence_rejects_invalid_copy_number(self):
+        index,_=self.quality_index()
+        digest=index[0]['sequence_sha256']
+        path=self.p/'evidence.tsv'
+        fields=['plasmid_id','sequence_sha256','evidence_source','copy_number']
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',copy_number='-3')])
+        with self.assertRaisesRegex(ValueError,'copy_number'):
+            load_evidence(path,index)
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',copy_number='not-a-number')])
+        with self.assertRaisesRegex(ValueError,'copy_number'):
+            load_evidence(path,index)
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',copy_number='7.2')])
+        self.assertEqual(load_evidence(path,index)['p1']['copy_number'],'7.2')
+
     def test_chromosome_evidence_rejects_and_checksum_mismatch_fails(self):
         index,seq=self.quality_index()
         self.assertEqual(assess(index,seq,evidence={'p1':dict(classification='chromosome')})[0]['quality_status'],'rejected')
@@ -311,6 +340,84 @@ class GapWorkflows(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'predicted_transmissibility_score'):
             load_external_typing(path,index)
 
+    def test_external_typing_validates_plasmidfinder_fields(self):
+        index,_=self.quality_index()
+        digest=index[0]['sequence_sha256']
+        fields=['plasmid_id','sequence_sha256','evidence_source','external_tool','plasmidfinder_inc_types','plasmidfinder_identity']
+        path=self.p/'typing.tsv'
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plasmidfinder',
+                                    plasmidfinder_inc_types='IncFIB;IncFII',plasmidfinder_identity='98.5')])
+        result=load_external_typing(path,index)
+        self.assertEqual(result['p1']['plasmidfinder_inc_types'],'IncFIB;IncFII')
+        self.assertEqual(result['p1']['plasmidfinder_identity'],'98.5')
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plasmidfinder',
+                                    plasmidfinder_inc_types='',plasmidfinder_identity='not-a-number')])
+        with self.assertRaisesRegex(ValueError,'plasmidfinder_identity'):
+            load_external_typing(path,index)
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plasmidfinder',
+                                    plasmidfinder_inc_types='',plasmidfinder_identity='150')])
+        with self.assertRaisesRegex(ValueError,'plasmidfinder_identity'):
+            load_external_typing(path,index)
+
+    def test_external_typing_validates_plsdb_fields(self):
+        index,_=self.quality_index()
+        digest=index[0]['sequence_sha256']
+        fields=['plasmid_id','sequence_sha256','evidence_source','external_tool','plsdb_nearest_accession','plsdb_nearest_distance','plsdb_nearest_host']
+        path=self.p/'typing.tsv'
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='mash-vs-plsdb',
+                                    plsdb_nearest_accession='NZ_CP012345.1',plsdb_nearest_distance='0.012',plsdb_nearest_host='Escherichia coli')])
+        result=load_external_typing(path,index)
+        self.assertEqual(result['p1']['plsdb_nearest_accession'],'NZ_CP012345.1')
+        self.assertEqual(result['p1']['plsdb_nearest_distance'],'0.012')
+        self.assertEqual(result['p1']['plsdb_nearest_host'],'Escherichia coli')
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='mash-vs-plsdb',
+                                    plsdb_nearest_accession='',plsdb_nearest_distance='not-a-number',plsdb_nearest_host='')])
+        with self.assertRaisesRegex(ValueError,'plsdb_nearest_distance'):
+            load_external_typing(path,index)
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='mash-vs-plsdb',
+                                    plsdb_nearest_accession='',plsdb_nearest_distance='1.5',plsdb_nearest_host='')])
+        with self.assertRaisesRegex(ValueError,'plsdb_nearest_distance'):
+            load_external_typing(path,index)
+
+    def test_external_typing_validates_predicted_classification_fields(self):
+        index,_=self.quality_index()
+        digest=index[0]['sequence_sha256']
+        fields=['plasmid_id','sequence_sha256','evidence_source','external_tool','predicted_classification_score','predicted_classification_call',
+                'predicted_classification_tool','predicted_classification_tool_version']
+        path=self.p/'typing.tsv'
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plasflow',
+                                    predicted_classification_score='0.93',predicted_classification_call='plasmid',
+                                    predicted_classification_tool='PlasFlow',predicted_classification_tool_version='1.1')])
+        result=load_external_typing(path,index)
+        self.assertEqual(result['p1']['predicted_classification_score'],'0.93')
+        self.assertEqual(result['p1']['predicted_classification_call'],'plasmid')
+        self.assertEqual(result['p1']['predicted_classification_tool'],'PlasFlow')
+        self.assertEqual(result['p1']['predicted_classification_tool_version'],'1.1')
+        # Opaque fields (score xor call supplied alone) must not require each other.
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plasmer',
+                                    predicted_classification_score='0.5',predicted_classification_call='',
+                                    predicted_classification_tool='',predicted_classification_tool_version='')])
+        self.assertEqual(load_external_typing(path,index)['p1']['predicted_classification_score'],'0.5')
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plasmer',
+                                    predicted_classification_score='',predicted_classification_call='chromosome',
+                                    predicted_classification_tool='',predicted_classification_tool_version='')])
+        self.assertEqual(load_external_typing(path,index)['p1']['predicted_classification_call'],'chromosome')
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plasflow',
+                                    predicted_classification_score='1.5',predicted_classification_call='',
+                                    predicted_classification_tool='',predicted_classification_tool_version='')])
+        with self.assertRaisesRegex(ValueError,'predicted_classification_score'):
+            load_external_typing(path,index)
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plasflow',
+                                    predicted_classification_score='',predicted_classification_call='definitely-a-plasmid',
+                                    predicted_classification_tool='',predicted_classification_tool_version='')])
+        with self.assertRaisesRegex(ValueError,'predicted_classification_call'):
+            load_external_typing(path,index)
+        write_tsv(path,fields,[dict(plasmid_id='p1',sequence_sha256=digest,evidence_source='lab',external_tool='plasflow',
+                                    predicted_classification_score='not-a-number',predicted_classification_call='',
+                                    predicted_classification_tool='',predicted_classification_tool_version='')])
+        with self.assertRaisesRegex(ValueError,'predicted_classification_score'):
+            load_external_typing(path,index)
+
     def test_containment_heuristic_skips_equal_length_and_size_disparity(self):
         accepted=[dict(plasmid_id='small',isolate_id='i1',length=950),
                   dict(plasmid_id='large',isolate_id='i2',length=1000),
@@ -335,6 +442,52 @@ class GapWorkflows(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'containment-min-ratio'):
             detect_containment([],[],{},[],min_length_ratio=0.9,max_length_ratio=0.5)
 
+    def test_effective_threshold_loosens_with_size_difference_and_caps(self):
+        self.assertEqual(effective_threshold(0.001,100,100,0.0003,40),0.001)
+        self.assertEqual(effective_threshold(0.001,100,100,0.0,40),0.001)
+        self.assertEqual(effective_threshold(0.001,100,0,0.0003,40),0.001)
+        moderate=effective_threshold(0.001,100,120,0.0003,40)
+        expected=0.001+0.0003*(100*20/120)
+        self.assertAlmostEqual(moderate,expected,places=9)
+        capped=effective_threshold(0.001,100,1000,0.0003,40)
+        self.assertAlmostEqual(capped,0.001+0.0003*40,places=9)
+
+    def test_effective_threshold_reproduces_scherff_worked_example(self):
+        # Scherff et al. 2024 (doi:10.1128/spectrum.02100-24): a plasmid 17% larger than its
+        # pair, raw Mash distance 0.003, merges only once size-corrected to ~0.0061. Using this
+        # module's max(len_a,len_b) percent-difference convention, a smaller/larger length pair
+        # of 83/100 gives exactly 17% ((100-83)/100), reproducing the cited figures precisely.
+        corrected=effective_threshold(0.001,83,100,0.0003,40)
+        self.assertAlmostEqual(corrected,0.0061,places=6)
+        self.assertGreater(0.003,0.001,'sanity: the raw 0.003 distance must exceed the uncorrected 0.001 threshold')
+        self.assertLessEqual(0.003,corrected,'the paper reports these plasmids merge once size-corrected')
+
+    def test_cluster_single_size_correction_defaults_to_uncorrected_behavior(self):
+        items=['a','b']
+        dist=[[0.0,0.02],[0.02,0.0]]
+        uncorrected=cluster_single(items,dist,0.01)
+        self.assertEqual(len(uncorrected),2)
+        still_uncorrected=cluster_single(items,dist,0.01,lengths=[100,120],size_correction_per_percent=0.0)
+        self.assertEqual(uncorrected,still_uncorrected)
+
+    def test_cluster_single_size_correction_merges_pair_uncorrected_would_miss(self):
+        items=['a','b']
+        dist=[[0.0,0.005],[0.005,0.0]]
+        without_correction=cluster_single(items,dist,0.001,lengths=[100,120])
+        self.assertEqual(len(without_correction),2)
+        with_correction=cluster_single(items,dist,0.001,lengths=[100,120],
+            size_correction_per_percent=0.0003,size_correction_cap_pct=40)
+        self.assertEqual(len(with_correction),1)
+
+    def test_cluster_complete_size_correction_merges_pair_uncorrected_would_miss(self):
+        items=['a','b']
+        dist=[[0.0,0.005],[0.005,0.0]]
+        without_correction=cluster_complete(items,dist,0.001,lengths=[100,120])
+        self.assertEqual(len(without_correction),2)
+        with_correction=cluster_complete(items,dist,0.001,lengths=[100,120],
+            size_correction_per_percent=0.0003,size_correction_cap_pct=40)
+        self.assertEqual(len(with_correction),1)
+
     def run_fixture(self,out_name,external_typing=None,features=None):
         meta=self.p/'meta.tsv'
         write_tsv(meta,['isolate_id'],[dict(isolate_id='i1'),dict(isolate_id='i2')])
@@ -350,6 +503,40 @@ class GapWorkflows(unittest.TestCase):
             annotation_config=None,external_typing=external_typing)
         run(args)
         return args.out
+
+    def test_run_threads_size_correction_into_edge_evidence_and_sensitivity_sweep(self):
+        # End-to-end wiring check: cli.py::run() must thread --size-correction-* through the
+        # cluster_plasmids.py subprocess step, the in-process threshold-sensitivity sweep, and
+        # the edge-evidence interpretation text -- not just the underlying cluster_* functions.
+        meta=self.p/'sc_meta.tsv'
+        write_tsv(meta,['isolate_id'],[dict(isolate_id='i1'),dict(isolate_id='i2')])
+        base='ACGTTGCAACGTTCAGGATCCGATACCTAGCTGACTGGTAC'
+        seq_a=base
+        seq_b=base+'TTTTGGGGCCCCAAAATTTT'  # ~33% longer with a distinct tail: genuinely different k-mer content
+        fasta1=self.p/'sc_p1.fa';fasta1.write_text(f'>p1\n{seq_a}\n')
+        fasta2=self.p/'sc_p2.fa';fasta2.write_text(f'>p2\n{seq_b}\n')
+        manifest=self.p/'sc_manifest.tsv'
+        write_tsv(manifest,['isolate_id','plasmid_id','fasta_path'],
+                  [dict(isolate_id='i1',plasmid_id='p1',fasta_path=str(fasta1)),
+                   dict(isolate_id='i2',plasmid_id='p2',fasta_path=str(fasta2))])
+        base_args=dict(manifest=manifest,metadata=meta,features=None,mode='precomputed',engine='kmer',
+            threshold=.001,k=3,min_length=3,sketch_size=100,linkage='single',
+            annotation_config=None,external_typing=None)
+
+        run(argparse.Namespace(out=self.p/'sc_off',**base_args))
+        edges_off=read_tsv(self.p/'sc_off'/'network.edges.tsv')
+        self.assertEqual(len(edges_off),0,'A strict base threshold must not merge visibly different plasmids without correction')
+
+        run(argparse.Namespace(out=self.p/'sc_on',size_correction_per_percent=0.5,size_correction_cap_pct=50.0,**base_args))
+        edges_on=read_tsv(self.p/'sc_on'/'network.edges.tsv')
+        self.assertEqual(len(edges_on),1,'A large size correction must merge the pair the base threshold alone would miss')
+        evidence=read_tsv(self.p/'sc_on'/'network.edge_evidence.tsv')
+        self.assertEqual(len(evidence),1)
+        self.assertEqual(evidence[0]['direct_threshold_support'],'true')
+        self.assertIn('size-corrected threshold',evidence[0]['interpretation'])
+        sensitivity=read_tsv(self.p/'sc_on'/'threshold_sensitivity.tsv')
+        self.assertTrue(any(int(row['n_units'])==1 for row in sensitivity),
+                        'Threshold-sensitivity sweep must also reflect the corrected threshold, not just the final clustering')
 
     def test_cluster_relation_labels_same_cross_and_unknown(self):
         meta_by_iso={'i1':dict(chromosomal_cluster='CC1'),'i2':dict(chromosomal_cluster='CC1'),

@@ -5,7 +5,7 @@ from pathlib import Path
 from .contracts import checksum, read_tsv
 
 POLICY_VERSION = "1.0"
-QUALITY_FIELDS = "plasmid_id sequence_sha256 quality_status classification replicon_type mobility_class sequence_entropy ambiguous_fraction terminal_overlap_bp graph_closure read_breadth mean_depth chromosome_fraction evidence_source evidence_sha256 policy_version quality_warnings".split()
+QUALITY_FIELDS = "plasmid_id sequence_sha256 quality_status classification replicon_type mobility_class sequence_entropy ambiguous_fraction terminal_overlap_bp graph_closure read_breadth mean_depth chromosome_fraction copy_number evidence_source evidence_sha256 policy_version quality_warnings".split()
 
 
 def entropy(sequence):
@@ -55,10 +55,21 @@ def load_evidence(path, index):
         if pid not in by_id or pid in evidence or row['sequence_sha256'] != by_id[pid]['sequence_sha256'] or not row['evidence_source']:
             raise ValueError(f"Quality evidence must uniquely match a candidate checksum and source: {pid}")
         for key in ('read_breadth', 'chromosome_fraction'):
-            if row.get(key) and not 0 <= float(row[key]) <= 1:
-                raise ValueError(f"{key} must be a fraction in [0,1]")
-        if row.get('mean_depth') and (not math.isfinite(float(row['mean_depth'])) or float(row['mean_depth']) < 0):
-            raise ValueError("mean_depth must be finite and nonnegative")
+            if row.get(key):
+                try:
+                    value = float(row[key])
+                except ValueError:
+                    raise ValueError(f"{key} must be a fraction in [0,1]") from None
+                if not 0 <= value <= 1:
+                    raise ValueError(f"{key} must be a fraction in [0,1]")
+        for key in ('mean_depth', 'copy_number'):
+            if row.get(key):
+                try:
+                    value = float(row[key])
+                except ValueError:
+                    raise ValueError(f"{key} must be finite and nonnegative") from None
+                if not math.isfinite(value) or value < 0:
+                    raise ValueError(f"{key} must be finite and nonnegative")
         if row.get('classification', '') not in {'', 'plasmid', 'chromosome', 'uncertain'}:
             raise ValueError("classification must be plasmid, chromosome or uncertain")
         row['evidence_sha256'] = evidence_sha256
@@ -117,6 +128,7 @@ def assess(index, sequences, typing=None, evidence=None):
             classification=classification, replicon_type=replicon, mobility_class=typ.get('predicted_mobility', 'not_evaluated'),
             sequence_entropy=ent, ambiguous_fraction=ambiguous, terminal_overlap_bp=overlap, graph_closure=closure,
             read_breadth=obs.get('read_breadth', ''), mean_depth=obs.get('mean_depth', ''), chromosome_fraction=obs.get('chromosome_fraction', ''),
+            copy_number=obs.get('copy_number', ''),
             evidence_source=obs.get('evidence_source', ''), evidence_sha256=obs.get('evidence_sha256', ''),
             policy_version=POLICY_VERSION, quality_warnings=row['quality_warnings']))
     return output

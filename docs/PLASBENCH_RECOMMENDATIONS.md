@@ -11,7 +11,7 @@ It is a handoff for whoever maintains PlasBench to evaluate independently.
 
 ### 1. Nearest-neighbor reconstruction-identity reporting (from MOB-suite)
 
-**Source:** [phac-nml/mob-suite](https://github.com/phac-nml/mob-suite) (Apache-2.0).
+**Source:** phac-nml/mob-suite (Apache-2.0).
 **Why it matters for a reconstruction benchmark:** `mob_cluster` reports
 `mash_nearest_neighbor`, `mash_neighbor_distance` and `mash_neighbor_identification` per
 plasmid -- "how close is this reconstruction to the nearest known reference, and which
@@ -20,7 +20,7 @@ reference-truth comparison. Worth evaluating as an additional per-assembly metri
 
 ### 2. Alignment-based containment/completeness check (from MobMess)
 
-**Source:** [michaelkyu/MobMess](https://github.com/michaelkyu/MobMess) (GPL-3.0 --
+**Source:** michaelkyu/MobMess (GPL-3.0 --
 note the copyleft license before reusing code directly; the *approach* is reusable
 regardless).
 **Why it matters:** MobMess uses MUMmer4 pairwise alignment (coverage ≥90%, identity ≥90%)
@@ -31,7 +31,7 @@ complement to whatever completeness measure PlasBench currently uses.
 
 ### 3. ANI-based reference-network insertion with an explicit novel-vs-known decision (from COPLA)
 
-**Source:** [santirdnd/COPLA](https://github.com/santirdnd/COPLA) (GPL-3.0).
+**Source:** santirdnd/COPLA (GPL-3.0).
 **Why it matters:** COPLA computes ANI between a query and a reference plasmid network,
 statistically tests cluster membership, and either assigns a known taxonomic unit or
 flags the query as novel, with a confidence score. The "explicit novel-vs-known decision

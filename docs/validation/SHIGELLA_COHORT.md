@@ -1,11 +1,10 @@
 # Candidate cohort: MDU PHL Shigella (not yet used for validation)
 
 This is a scoped research note, not an implemented validation cohort. It records what was
-confirmed while studying [nicfel/Plasmids-material](https://github.com/nicfel/Plasmids-material)
-(supplementary code for Müller, Wick, Judd, Williamson, Bedford, Howden, Duchêne, Ingle,
-*Quantifying plasmid movement in drug-resistant Shigella species using phylodynamic
-inference*, PLOS Pathogens 21(12): e1013621, 2025; PMC12677775), so a future contributor
-does not have to re-research it from scratch.
+confirmed while studying the supplementary code for Müller, Wick, Judd, Williamson, Bedford,
+Howden, Duchêne, Ingle, *Quantifying plasmid movement in drug-resistant Shigella species using
+phylodynamic inference*, PLOS Pathogens 21(12): e1013621, 2025 (PMC12677775), so a future
+contributor does not have to re-research it from scratch.
 
 ## What's confirmed
 
@@ -19,7 +18,7 @@ does not have to re-research it from scratch.
   MDU-PHL surveillance activities in Victoria, Australia" — 1,743 BioSamples, 4,101 SRA runs,
   verified live on NCBI). S2 Table (flexneri) accessions were not independently re-verified
   row-by-row — confirm before use.
-- **Repo contents**: `Applications/Shigella/` in the GitHub repo has plasmid-presence/date
+- **Repo contents**: `Applications/Shigella/` in the paper's supplementary code has plasmid-presence/date
   matrices (e.g. `sonnei_plasmid_info.tsv`: isolate ID, date, binary presence per reference
   plasmid) — useful structure, but **no accession numbers**; those live only in the paper's
   S1/S2 tables. `xmls/`/`supplementalxmls/` hold ~90+ BEAST2 XML configs encoding taxon-date

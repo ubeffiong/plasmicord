@@ -87,12 +87,26 @@ class UF:
             self.p[ra] = rb
 
 
-def cluster_single(items, dist, threshold):
+def effective_threshold(threshold, len_a, len_b, size_correction_per_percent=0.0, size_correction_cap_pct=40.0):
+    """Loosen (never tighten) the threshold as a plasmid pair's size difference grows, per
+    Scherff et al. (Microbiol Spectrum 2024, 10.1128/spectrum.02100-24): effective threshold =
+    threshold + size_correction_per_percent * min(size_diff_pct, size_correction_cap_pct), where
+    size_diff_pct = 100 * |len_a - len_b| / max(len_a, len_b). Disabled (returns threshold
+    unchanged) when size_correction_per_percent is 0 or either length is falsy/unknown."""
+    if not size_correction_per_percent or not len_a or not len_b:
+        return threshold
+    size_diff_pct = 100.0 * abs(len_a - len_b) / max(len_a, len_b)
+    return threshold + size_correction_per_percent * min(size_diff_pct, size_correction_cap_pct)
+
+
+def cluster_single(items, dist, threshold, lengths=None, size_correction_per_percent=0.0, size_correction_cap_pct=40.0):
     n = len(items)
     uf = UF(n)
     for i in range(n):
         for j in range(i + 1, n):
-            if dist[i][j] <= threshold:
+            t = threshold if lengths is None else effective_threshold(
+                threshold, lengths[i], lengths[j], size_correction_per_percent, size_correction_cap_pct)
+            if dist[i][j] <= t:
                 uf.union(i, j)
     comp = {}
     for i in range(n):
@@ -100,13 +114,17 @@ def cluster_single(items, dist, threshold):
     return list(comp.values())
 
 
-def cluster_complete(items, dist, threshold):
+def cluster_complete(items, dist, threshold, lengths=None, size_correction_per_percent=0.0, size_correction_cap_pct=40.0):
     """Greedy complete-linkage: agglomerate only if the pairwise max stays <= t."""
     n = len(items)
     clusters = [[i] for i in range(n)]
 
     def can_merge(a, b):
-        return all(dist[x][y] <= threshold for x in a for y in b)
+        if lengths is None:
+            return all(dist[x][y] <= threshold for x in a for y in b)
+        return all(dist[x][y] <= effective_threshold(
+            threshold, lengths[x], lengths[y], size_correction_per_percent, size_correction_cap_pct)
+            for x in a for y in b)
 
     merged = True
     while merged:
@@ -131,6 +149,38 @@ def cluster_complete(items, dist, threshold):
     return clusters
 
 
+def read_lengths(path, items):
+    """TSV with plasmid_id and length columns (e.g. plasmid_index.tsv); header-based lookup
+    since such files may carry many other columns in no fixed order."""
+    with open(path) as fh:
+        header = fh.readline().rstrip("\n").split("\t")
+        if "plasmid_id" not in header or "length" not in header:
+            sys.exit("ERROR: --lengths file must have plasmid_id and length columns.")
+        pid_i, len_i = header.index("plasmid_id"), header.index("length")
+        lengths = {}
+        for line in fh:
+            if not line.strip():
+                continue
+            f = line.rstrip("\n").split("\t")
+            lengths[f[pid_i]] = f[len_i]
+    missing = sorted(it for it in items if it not in lengths)
+    if missing:
+        sys.exit(f"ERROR: --lengths file is missing entries for: {missing[:5]}{'...' if len(missing) > 5 else ''}")
+    resolved = {}
+    for it in items:
+        try:
+            value = float(lengths[it])
+        except ValueError:
+            sys.exit(f"ERROR: --lengths value for '{it}' is not a number: {lengths[it]!r}")
+        if not math.isfinite(value) or value <= 0:
+            # A silently-ignored bad length would make effective_threshold() fall back to the
+            # uncorrected threshold for only this item's pairs, with no signal anywhere that
+            # size correction was partially disabled -- fail loudly instead.
+            sys.exit(f"ERROR: --lengths value for '{it}' must be a positive number, got {lengths[it]!r}")
+        resolved[it] = value
+    return [resolved[it] for it in items]
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -138,15 +188,27 @@ def main():
     ap.add_argument("--threshold", type=float, required=True)
     ap.add_argument("--linkage", choices=["single", "complete"], default="single")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--lengths", help="TSV with plasmid_id and length columns (e.g. plasmid_index.tsv); required to enable size correction")
+    ap.add_argument("--size-correction-per-percent", type=float, default=0.0,
+                     help="Loosen the threshold by this amount per 1%% pairwise length difference (0 = disabled); see Scherff et al. 2024, doi:10.1128/spectrum.02100-24")
+    ap.add_argument("--size-correction-cap-pct", type=float, default=40.0,
+                     help="Size-difference percentage beyond which the correction stops growing")
     args = ap.parse_args()
     if not math.isfinite(args.threshold) or not 0 <= args.threshold <= 1:
         ap.error("threshold must be finite and within [0, 1]")
+    if args.size_correction_per_percent < 0:
+        ap.error("size-correction-per-percent must be >= 0")
+    if not 0 < args.size_correction_cap_pct <= 100:
+        ap.error("size-correction-cap-pct must be in (0, 100]")
+    if args.size_correction_per_percent and not args.lengths:
+        ap.error("--lengths is required when --size-correction-per-percent is nonzero")
 
     items, idx, dist = read_matrix(args.matrix)
+    lengths = read_lengths(args.lengths, items) if args.lengths else None
     if args.linkage == "single":
-        comps = cluster_single(items, dist, args.threshold)
+        comps = cluster_single(items, dist, args.threshold, lengths, args.size_correction_per_percent, args.size_correction_cap_pct)
     else:
-        comps = cluster_complete(items, dist, args.threshold)
+        comps = cluster_complete(items, dist, args.threshold, lengths, args.size_correction_per_percent, args.size_correction_cap_pct)
 
     # Deterministic ordering + IDs.
     named = []
@@ -159,7 +221,9 @@ def main():
     item_to_cluster = {}
     # unit_threshold_margin: threshold minus the cluster's worst (max) internal pairwise
     # distance. Always >=0 under complete linkage (an algorithm invariant); can go negative
-    # under single linkage, exposing chained membership beyond the direct threshold.
+    # under single linkage, exposing chained membership beyond the direct threshold. Always
+    # measured against the base --threshold, even when size correction is enabled: a single
+    # per-unit margin cannot represent per-pair effective thresholds that vary by member length.
     cluster_margin = {}
     for k, (names, members) in enumerate(named, start=1):
         cid = f"PU_{k:0{width}d}"
@@ -180,10 +244,11 @@ def main():
 
     n_clusters = len(named)
     singletons = sum(1 for names in named if len(names) == 1)
+    correction_note = f", size-corrected +{args.size_correction_per_percent}/1% up to {args.size_correction_cap_pct}%" if args.size_correction_per_percent else ""
     sys.stderr.write(
         f"[cluster] {len(items)} plasmids -> {n_clusters} plasmid units "
         f"({singletons} singletons) at threshold {args.threshold} "
-        f"({args.linkage} linkage)\n"
+        f"({args.linkage} linkage{correction_note})\n"
     )
 
 

@@ -16,6 +16,7 @@ jobs:
       - run: python -m unittest discover -s test -p test_standalone.py -v
       - run: python -m unittest discover -s test -p test_gap_workflows.py -v
       - run: python -m unittest discover -s test -p test_detailed_report.py -v
+      - run: python -m unittest discover -s test -p test_documentation_links.py -v
       - run: python test/test_clustering.py
       - run: python test/test_network_discordance.py
       - run: plasmicord demo --out results_ci

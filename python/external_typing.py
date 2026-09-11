@@ -1,8 +1,11 @@
 """Optional checksum-linked cross-references to external typing/taxonomy calls.
 
 These fields (e.g. MOB-suite cluster IDs, COPLA plasmid taxonomic units, predicted
-host range) are opaque external identifiers. PlasmiCord does not compute, validate
-or interpret them, and they never influence quality/confidence tiers in quality.py.
+host range, PlasmidFinder Inc-types, PLSDB nearest-reference match) are opaque external
+identifiers. PlasmiCord does not compute, validate or interpret them, and they never
+influence quality/confidence tiers in quality.py. PlasmidFinder and MOB-typer (already
+imported) use independently curated replicon databases and may legitimately disagree;
+that disagreement is useful review evidence, not something this module reconciles.
 """
 import re
 from .contracts import checksum, read_tsv
@@ -13,9 +16,17 @@ EXTERNAL_TYPING_FIELDS = ("plasmid_id sequence_sha256 evidence_source external_t
                           "predicted_host_range_overall_name associated_pmids "
                           "predicted_transmissibility_score predicted_transmissibility_call "
                           "predicted_transmissibility_tool predicted_transmissibility_tool_version "
+                          "plasmidfinder_inc_types plasmidfinder_identity "
+                          "predicted_classification_score predicted_classification_call "
+                          "predicted_classification_tool predicted_classification_tool_version "
+                          "plsdb_nearest_accession plsdb_nearest_distance plsdb_nearest_host "
                           "evidence_sha256").split()
 
 TRANSMISSIBILITY_CALLS = {"conjugative", "mobilizable", "non-mobilizable", "uncertain"}
+# Matches quality.py's --quality-evidence `classification` vocabulary for consistency; this is a
+# different evidentiary axis (identity/classification confidence, e.g. PlasFlow/Plasmer) from the
+# transmissibility fields above (transfer-potential confidence, e.g. PlasTrans) -- never conflate them.
+CLASSIFICATION_CALLS = {"plasmid", "chromosome", "uncertain"}
 
 
 def load_external_typing(path, index):
@@ -52,6 +63,33 @@ def load_external_typing(path, index):
         call = row.get("predicted_transmissibility_call", "")
         if call and call.lower() not in TRANSMISSIBILITY_CALLS:
             raise ValueError(f"{pid}: predicted_transmissibility_call must be one of {sorted(TRANSMISSIBILITY_CALLS)}")
+        identity = row.get("plasmidfinder_identity", "")
+        if identity:
+            try:
+                identity_value = float(identity)
+            except ValueError:
+                raise ValueError(f"{pid}: plasmidfinder_identity must be a number in [0,100]") from None
+            if not 0 <= identity_value <= 100:
+                raise ValueError(f"{pid}: plasmidfinder_identity must be a number in [0,100]")
+        classification_score = row.get("predicted_classification_score", "")
+        if classification_score:
+            try:
+                classification_score_value = float(classification_score)
+            except ValueError:
+                raise ValueError(f"{pid}: predicted_classification_score must be a number in [0,1]") from None
+            if not 0 <= classification_score_value <= 1:
+                raise ValueError(f"{pid}: predicted_classification_score must be a number in [0,1]")
+        classification_call = row.get("predicted_classification_call", "")
+        if classification_call and classification_call.lower() not in CLASSIFICATION_CALLS:
+            raise ValueError(f"{pid}: predicted_classification_call must be one of {sorted(CLASSIFICATION_CALLS)}")
+        plsdb_distance = row.get("plsdb_nearest_distance", "")
+        if plsdb_distance:
+            try:
+                plsdb_distance_value = float(plsdb_distance)
+            except ValueError:
+                raise ValueError(f"{pid}: plsdb_nearest_distance must be a number in [0,1]") from None
+            if not 0 <= plsdb_distance_value <= 1:
+                raise ValueError(f"{pid}: plsdb_nearest_distance must be a number in [0,1]")
         row["evidence_sha256"] = evidence_sha256
         typing[pid] = row
     return typing

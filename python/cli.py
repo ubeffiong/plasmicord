@@ -14,7 +14,7 @@ from pathlib import Path
 from . import __version__, PROJECT_NAME, PROJECT_TITLE, PROJECT_TAGLINE
 from .contracts import (MODES, INDEX_FIELDS, FEATURE_FIELDS, checksum, metadata,
                         normalize_features, read_tsv, validate_manifest, write_tsv)
-from .cluster_plasmids import cluster_single, cluster_complete, read_matrix
+from .cluster_plasmids import cluster_single, cluster_complete, read_matrix, effective_threshold
 from .report import build_report
 from .quality import assess, load_evidence, QUALITY_FIELDS
 from .external_typing import EXTERNAL_TYPING_FIELDS, load_external_typing
@@ -77,6 +77,10 @@ def run(args):
         raise ValueError("Require 0 < containment-min-ratio < containment-max-ratio <= 1")
     if not 0 <= containment_max_distance <= 1:
         raise ValueError("containment-max-distance must be in [0,1]")
+    if getattr(args, 'size_correction_per_percent', 0.0) < 0:
+        raise ValueError("size-correction-per-percent must be >= 0")
+    if not 0 < getattr(args, 'size_correction_cap_pct', 40.0) <= 100:
+        raise ValueError("size-correction-cap-pct must be in (0, 100]")
     meta = metadata(args.metadata)
     index, sequences = validate_manifest(args.manifest, meta, args.mode, args.min_length)
     out = args.out.resolve()
@@ -94,6 +98,8 @@ def run(args):
                   distance_engine=args.engine, threshold=args.threshold, linkage=args.linkage,
                   k=args.k, sketch_size=args.sketch_size if args.engine == "mash" else None,
                   min_length=args.min_length,
+                  size_correction_per_percent=getattr(args, 'size_correction_per_percent', 0.0),
+                  size_correction_cap_pct=getattr(args, 'size_correction_cap_pct', 40.0),
                   manifest_sha256=checksum(args.manifest), metadata_sha256=checksum(args.metadata),
                   features_sha256=checksum(args.features) if args.features else None,
                   annotation_status="imported; absence not evaluated" if args.features else "not_evaluated",
@@ -159,7 +165,14 @@ def run(args):
                     subprocess.run(commands[1], stdout=dest, stderr=log, check=True)
             step("mash_to_matrix.py", "--dist", out / "mash_dist.tsv", "--out", matrix)
             record["distance_status"] = "computed"
-        step("cluster_plasmids.py", "--matrix", matrix, "--threshold", args.threshold, "--linkage", args.linkage, "--out", out / "plasmid_clusters.tsv")
+        size_correction_per_percent = getattr(args, 'size_correction_per_percent', 0.0)
+        size_correction_cap_pct = getattr(args, 'size_correction_cap_pct', 40.0)
+        cluster_args = ["--matrix", matrix, "--threshold", args.threshold, "--linkage", args.linkage, "--out", out / "plasmid_clusters.tsv"]
+        if size_correction_per_percent:
+            cluster_args += ["--lengths", out / "plasmid_index.tsv",
+                             "--size-correction-per-percent", size_correction_per_percent,
+                             "--size-correction-cap-pct", size_correction_cap_pct]
+        step("cluster_plasmids.py", *cluster_args)
         assignments = {r["plasmid_id"]: r["plasmid_unit"] for r in read_tsv(out / "plasmid_clusters.tsv")}
         step("build_network.py", "--index", out / "plasmid_index.tsv", "--clusters", out / "plasmid_clusters.tsv",
              "--metadata", out / "metadata.tsv", "--out-prefix", out / "network")
@@ -172,10 +185,12 @@ def run(args):
         ids, _, distances = read_matrix(matrix)
         if set(ids) != {r["plasmid_id"] for r in accepted}:
             raise ValueError("Matrix IDs do not match imported plasmids")
+        lengths_by_id = {r["plasmid_id"]: float(r["length"]) for r in accepted}
+        lengths = [lengths_by_id[pid] for pid in ids] if size_correction_per_percent else None
         method = cluster_single if args.linkage == "single" else cluster_complete
         sweep = []
         for threshold in sorted({0.0, args.threshold / 2, args.threshold, min(1.0, args.threshold * 2)}):
-            comps = method(ids, distances, threshold)
+            comps = method(ids, distances, threshold, lengths, size_correction_per_percent, size_correction_cap_pct)
             sweep.append(dict(threshold=threshold, linkage=args.linkage, n_units=len(comps), n_singletons=sum(len(c) == 1 for c in comps)))
         write_tsv(out / "threshold_sensitivity.tsv", ["threshold", "linkage", "n_units", "n_singletons"], sweep)
         # Distinguish direct threshold support from links induced by single-linkage chains.
@@ -191,13 +206,19 @@ def run(args):
         for edge in read_tsv(out / "network.edges.tsv"):
             for unit in edge["shared_units"].split(","):
                 left, right = members[(edge["source"], unit)], members[(edge["target"], unit)]
-                distance = min(distances[pos[a]][pos[b]] for a in left for b in right)
+                a_best, b_best, distance = min(((a, b, distances[pos[a]][pos[b]]) for a in left for b in right), key=lambda x: x[2])
+                pair_threshold = (effective_threshold(args.threshold, lengths_by_id[a_best], lengths_by_id[b_best],
+                                                       size_correction_per_percent, size_correction_cap_pct)
+                                  if size_correction_per_percent else args.threshold)
                 shared_args = set().union(*(eligible[p] for p in left)) & set().union(*(eligible[p] for p in right))
+                interpretation = "candidate sharing link; direct transmission unproven"
+                if size_correction_per_percent and distance <= pair_threshold and distance > args.threshold:
+                    interpretation += "; direct support only under the size-corrected threshold"
                 edge_details.append(dict(source=edge["source"], target=edge["target"], plasmid_unit=unit,
-                                         minimum_distance=distance, direct_threshold_support=str(distance <= args.threshold).lower(),
-                                         threshold_margin=args.threshold - distance,
+                                         minimum_distance=distance, direct_threshold_support=str(distance <= pair_threshold).lower(),
+                                         threshold_margin=pair_threshold - distance,
                                          shared_args=";".join(sorted(shared_args)),
-                                         interpretation="candidate sharing link; direct transmission unproven"))
+                                         interpretation=interpretation))
         write_tsv(out / "network.edge_evidence.tsv", "source target plasmid_unit minimum_distance direct_threshold_support threshold_margin shared_args interpretation".split(), edge_details)
         if getattr(args, 'multilayer_network', False):
             meta_by_iso = {r["isolate_id"]: r for r in meta}
@@ -205,7 +226,8 @@ def run(args):
             write_tsv(out / "network.multilayer_edges.tsv", MULTILAYER_EDGE_FIELDS, layered)
             write_multilayer_graphml(out / "network.multilayer.graphml", layered, meta_by_iso.keys())
         containment_rows = detect_containment(accepted, ids, pos, distances,
-            containment_min_ratio, containment_max_ratio, containment_max_distance)
+            containment_min_ratio, containment_max_ratio, containment_max_distance,
+            size_correction_per_percent, size_correction_cap_pct)
         write_tsv(out / "containment_candidates.tsv", CONTAINMENT_FIELDS, containment_rows)
         record.update(status="complete", completed_at=datetime.now(timezone.utc).isoformat(),
                       n_isolates=len(meta), n_plasmids=len(accepted), n_rejected=len(index) - len(accepted), n_units=len(set(assignments.values())))
@@ -284,6 +306,10 @@ def main():
     p.add_argument("--containment-max-ratio", type=float, default=0.95, help="Maximum small/large length ratio for the containment heuristic (equal-length pairs are excluded)")
     p.add_argument("--containment-max-distance", type=float, help="Maximum pairwise distance for the containment heuristic (defaults to --threshold)")
     p.add_argument("--multilayer-network", action="store_true", help="Also write a per-plasmid-unit multilayer GraphML/TSV, each edge tagged with cluster_relation")
+    p.add_argument("--size-correction-per-percent", type=float, default=0.0,
+                   help="Loosen the clustering threshold by this amount per 1%% pairwise plasmid-length difference (0 = disabled); see Scherff et al. 2024, doi:10.1128/spectrum.02100-24")
+    p.add_argument("--size-correction-cap-pct", type=float, default=40.0,
+                   help="Size-difference percentage beyond which the correction stops growing")
     p.set_defaults(func=run)
     p = subs.add_parser("demo", help="Run seeded synthetic data with illustrative functional annotations")
     p.add_argument("--out", type=Path, default=Path("results_demo"))

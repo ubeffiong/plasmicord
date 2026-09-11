@@ -94,13 +94,15 @@ group/isolate/sequence leakage. See [calibration](docs/CALIBRATION.md) and
 [public-reference validation](docs/validation/README.md). Alignment agreement does not establish transmission.
 
 Add `--external-typing external_typing.tsv` to cross-reference opaque external identifiers
-(MOB-suite cluster IDs, COPLA PTU, predicted host range, or a sequence-based transmissibility
-classifier's score/call) without letting them influence PlasmiCord's own quality tiers.
-`plasmicord population-summary --results results_cohort` aggregates a completed run into
-cohort-level plasmid-unit and metadata-dimension summary tables; see
-[input contract](docs/INPUT_CONTRACT.md) and [population summary](docs/POPULATION_SUMMARY.md).
+(MOB-suite cluster IDs, COPLA PTU, predicted host range, PlasmidFinder Inc-types, or a
+sequence-based transmissibility classifier's score/call) without letting them influence
+PlasmiCord's own quality tiers. `plasmicord population-summary --results results_cohort`
+aggregates a completed run into cohort-level plasmid-unit and metadata-dimension summary
+tables; see [input contract](docs/INPUT_CONTRACT.md) and [population summary](docs/POPULATION_SUMMARY.md).
 Add `--multilayer-network` to `plasmicord run` for an additional per-plasmid-unit GraphML/TSV
 export, each edge tagged with whether it stays within or crosses a known chromosomal cluster.
+Add `--size-correction-per-percent` to loosen the clustering threshold for plasmid pairs with
+large length differences (disabled by default; see [input contract](docs/INPUT_CONTRACT.md)).
 
 ## What the final output looks like
 
@@ -113,16 +115,22 @@ See the [detailed report guide](docs/REPORT_GUIDE.md) and
 It includes:
 
 - Overview counts and a prominent dataset/interpretation notice.
-- Clickable isolate-sharing network; metadata and ARG filters; node colouring;
-  edge details showing distances, shared units, shared eligible ARGs and direct
-  threshold support versus links induced through cluster membership.
+- Clickable isolate-sharing network; metadata and ARG filters; node colouring and
+  optional node-size encoding (sharing degree or candidate-unit count); edge details
+  showing distances, shared units, shared eligible ARGs and direct threshold support
+  versus links induced through cluster membership; a pairwise gene-track comparison
+  for the two plasmids behind a selected edge (not sequence alignment).
+- An isolate timeline plotting collection dates with distance-labelled sharing edges;
+  isolates without a usable date are listed separately, not omitted.
 - Cross-cluster pair–unit evidence table, excluding unknown chromosome clusters.
 - **Functional Cargo and AMR Transmission:** unit/isolate selection, category/search
-  filters, directional contig gene tracks with zoom, and feature provenance details.
+  filters, directional contig gene tracks with zoom (with a circular gene-map toggle,
+  one ring per contig), and feature provenance details.
 - Unit function prevalence, carrying isolates, organisms, locations and date ranges.
 - Quality warnings, duplicate detection, annotation completion and threshold sensitivity.
 - Charts for quality, lengths, annotation coverage, functional/drug-class carriers,
-  metadata, collection months and unit sizes; exact pairwise-distance heatmap.
+  metadata, collection months and unit sizes (with a log/linear scale toggle);
+  exact pairwise-distance heatmap.
 - Dynamic interpretations for the selected isolate, candidate, pair and filtered network.
 - A searchable recursive file tree with metadata, checksums, safe text previews and
   original downloads, including nested annotation outputs and logs.
@@ -175,6 +183,7 @@ reconstruction and the supplied conda environment target Linux/WSL.
 python -m unittest discover -s test -p test_standalone.py -v
 python -m unittest discover -s test -p test_gap_workflows.py -v
 python -m unittest discover -s test -p test_detailed_report.py -v
+python -m unittest discover -s test -p test_documentation_links.py -v
 python test/test_clustering.py
 python test/test_network_discordance.py
 python plasmicord.py demo --out results_check

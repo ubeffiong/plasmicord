@@ -16,10 +16,10 @@ def write_matrix(path, items, dist):
             fh.write(it + "\t" + "\t".join(str(x) for x in dist[i]) + "\n")
 
 
-def run(matrix, threshold, linkage, out):
+def run(matrix, threshold, linkage, out, extra_args=()):
     subprocess.run([sys.executable, CLU, "--matrix", matrix,
                     "--threshold", str(threshold), "--linkage", linkage,
-                    "--out", out], check=True)
+                    "--out", out, *extra_args], check=True)
     result = {}
     with open(out) as fh:
         fh.readline()
@@ -27,6 +27,13 @@ def run(matrix, threshold, linkage, out):
             pid, cid, *_ = line.rstrip("\n").split("\t")
             result[pid] = cid
     return result
+
+
+def write_lengths(path, lengths):
+    with open(path, "w") as fh:
+        fh.write("plasmid_id\tlength\n")
+        for pid, length in lengths.items():
+            fh.write(f"{pid}\t{length}\n")
 
 
 def margins(out):
@@ -121,6 +128,44 @@ def main():
     r1 = run(m, 0.05, "single", os.path.join(tmp, "d1.tsv"))
     r2 = run(m, 0.05, "single", os.path.join(tmp, "d2.tsv"))
     ok &= (r1 == r2); print("deterministic ids:", r1 == r2)
+
+    # Size-corrected threshold (opt-in via --lengths + --size-correction-per-percent):
+    # F-G are two items whose raw distance (0.003) exceeds a base threshold of 0.001, but
+    # whose 20% size difference loosens the effective threshold enough to merge them.
+    items2 = ["F", "G"]
+    d2 = [[0.00, 0.003], [0.003, 0.00]]
+    m2 = os.path.join(tmp, "m2.tsv")
+    write_matrix(m2, items2, d2)
+    lengths_path = os.path.join(tmp, "lengths.tsv")
+    write_lengths(lengths_path, {"F": 100, "G": 120})
+
+    res = run(m2, 0.001, "single", os.path.join(tmp, "nocorr.tsv"))
+    ok &= (groups(res) == {frozenset({"F"}), frozenset({"G"})})
+    print("no size correction -> F,G stay separate:", groups(res) == {frozenset({"F"}), frozenset({"G"})})
+
+    res = run(m2, 0.001, "single", os.path.join(tmp, "corr.tsv"),
+              extra_args=["--lengths", lengths_path, "--size-correction-per-percent", "0.0003"])
+    ok &= (groups(res) == {frozenset({"F", "G"})})
+    print("size correction -> F,G merge:", groups(res) == {frozenset({"F", "G"})})
+
+    # --size-correction-per-percent without --lengths is a clean CLI error, not a crash.
+    failed_cleanly = subprocess.run([sys.executable, CLU, "--matrix", m2, "--threshold", "0.001",
+                                     "--linkage", "single", "--out", os.path.join(tmp, "bad.tsv"),
+                                     "--size-correction-per-percent", "0.0003"],
+                                    capture_output=True, text=True).returncode != 0
+    ok &= failed_cleanly
+    print("missing --lengths with correction enabled -> clean CLI error:", failed_cleanly)
+
+    # A zero/negative/non-numeric length must fail loudly, not silently fall back to the
+    # uncorrected threshold for just that item's pairs (a previously-audited silent-fallback risk).
+    bad_lengths_path = os.path.join(tmp, "bad_lengths.tsv")
+    write_lengths(bad_lengths_path, {"F": 100, "G": 0})
+    bad_length_failed = subprocess.run([sys.executable, CLU, "--matrix", m2, "--threshold", "0.001",
+                                        "--linkage", "single", "--out", os.path.join(tmp, "bad2.tsv"),
+                                        "--lengths", bad_lengths_path, "--size-correction-per-percent", "0.0003"],
+                                       capture_output=True, text=True).returncode != 0
+    ok &= bad_length_failed
+    print("zero length in --lengths file -> clean CLI error, not silent fallback:", bad_length_failed)
 
     print("\nCLUSTERING TESTS PASSED" if ok else "\nCLUSTERING TESTS FAILED")
     sys.exit(0 if ok else 1)

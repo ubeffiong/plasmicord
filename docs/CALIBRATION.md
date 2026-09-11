@@ -33,7 +33,7 @@ Alignment-positive defaults require ≥99.5% weighted HSP identity and ≥90% un
 This calibration fits a single static distance threshold against labeled pairs -- a
 lightweight, cohort-agnostic heuristic. It is not a substitute for full phylodynamic
 inference. Müller et al.'s joint coalescent + plasmid-transfer model (BEAST2/CoalPT; see
-[Plasmids-material](https://github.com/nicfel/Plasmids-material), *Quantifying plasmid
+their *Quantifying plasmid
 movement in drug-resistant Shigella species using phylodynamic inference*, PLOS Pathogens
 2025) jointly models chromosome and plasmid trees to estimate transfer/loss rates over time
 -- structurally more rigorous, but requiring BEAST2/MCMC and per-lineage tree inference, out

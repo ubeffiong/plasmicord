@@ -97,15 +97,43 @@ PlasmiCord does not compute itself: `mob_primary_cluster_id`, `mob_secondary_clu
 `mob_cluster_distance_definition`, `ptu_assignment`, `ptu_confidence`,
 `predicted_host_range_overall_rank`, `predicted_host_range_overall_name`,
 `associated_pmids`, `predicted_transmissibility_score`, `predicted_transmissibility_call`,
-`predicted_transmissibility_tool`, `predicted_transmissibility_tool_version`. Required
-columns are `plasmid_id`, `sequence_sha256`, `evidence_source`, `external_tool`.
-`sequence_sha256` must match the candidate's checksum; `plasmid_id` must be unique in the
-file. `ptu_confidence` is `low`/`medium`/`high` or a number in `[0,100]`. `associated_pmids`
-is semicolon-separated numeric PubMed IDs. `predicted_transmissibility_score` is a number in
-`[0,1]`; `predicted_transmissibility_call` is `conjugative`/`mobilizable`/`non-mobilizable`/`uncertain`
+`predicted_transmissibility_tool`, `predicted_transmissibility_tool_version`,
+`plasmidfinder_inc_types`, `plasmidfinder_identity`, `predicted_classification_score`,
+`predicted_classification_call`, `predicted_classification_tool`,
+`predicted_classification_tool_version`, `plsdb_nearest_accession`, `plsdb_nearest_distance`,
+`plsdb_nearest_host`. Required columns are `plasmid_id`,
+`sequence_sha256`, `evidence_source`, `external_tool`. `sequence_sha256` must match the
+candidate's checksum; `plasmid_id` must be unique in the file. `ptu_confidence` is
+`low`/`medium`/`high` or a number in `[0,100]`. `associated_pmids` is semicolon-separated
+numeric PubMed IDs. `predicted_transmissibility_score` is a number in `[0,1]`;
+`predicted_transmissibility_call` is `conjugative`/`mobilizable`/`non-mobilizable`/`uncertain`
 -- generic fields for any sequence-based transmissibility classifier's output (e.g.
-[PlasTrans](https://github.com/zhenchengfang/PlasTrans)'s codon-usage CNN score), not tied to
-one specific tool.
+PlasTrans's codon-usage CNN score), not tied to
+one specific tool. `plasmidfinder_inc_types` (semicolon-separated) and
+`plasmidfinder_identity` (a number in `[0,100]`) carry
+PlasmidFinder's independently-sourced
+Inc-type replicon calls. PlasmidFinder and MOB-typer's `rep_type(s)` (already imported) use
+different curated databases and may legitimately disagree on the same plasmid; that
+disagreement is review evidence, not something PlasmiCord reconciles.
+`predicted_classification_score` (a number in `[0,1]`) and `predicted_classification_call`
+(`plasmid`/`chromosome`/`uncertain`, matching `--quality-evidence`'s own vocabulary) carry a
+composition-based classifier's identity confidence -- e.g.
+PlasFlow's or
+Plasmer's per-contig probability. This is a **different
+evidentiary axis from `predicted_transmissibility_score`**: classification confidence (is this
+sequence a plasmid at all) versus transfer-potential confidence (could this plasmid conjugate) --
+the two must never be conflated. As with every field in this section, a numeric score here does
+not feed `--quality-evidence` or influence PlasmiCord's own quality tiers; only that same tool's
+*categorical* call, if separately supplied via `--quality-evidence`'s `classification` field
+(see [biological quality](QUALITY.md)), does that.
+`plsdb_nearest_accession`, `plsdb_nearest_distance` (a number in `[0,1]`, a Mash-style distance
+not a percentage) and `plsdb_nearest_host` carry a candidate's nearest match against
+PLSDB (~72,360 curated, dereplicated complete plasmid
+sequences derived from NCBI, CC-BY licensed). PlasmiCord does not maintain or bundle a reference
+plasmid database itself; a user downloads PLSDB's own Mash-sketch flat file, runs `mash dist`
+locally against their accepted candidates, and supplies the result here -- no new PlasmiCord
+dependency, same pattern as every other field in this section. Attribute PLSDB per its CC-BY
+terms when citing this evidence.
 
 **These fields are opaque external identifiers.** PlasmiCord does not validate, recompute
 or interpret them, and they never influence quality/confidence tiers -- see
@@ -131,6 +159,31 @@ detect size-disparate containment (a small plasmid nested in a much larger one) 
 excludes equal-length pairs (identity/PU territory, not containment); widening it to `1.0`
 would include them.
 
+## Size-corrected distance threshold
+
+`--size-correction-per-percent` (default `0.0`, disabled) optionally loosens the clustering
+distance threshold as a plasmid pair's length difference grows, following Scherff et al.
+(*Real-time Plasmid Transmission Detection Pipeline*, Microbiol Spectrum 2024,
+doi:10.1128/spectrum.02100-24), whose worked example (a 17%-larger plasmid, raw distance 0.003,
+only merging once size-corrected) confirms the effective threshold **loosens**, not tightens:
+
+```text
+effective_threshold = threshold + size_correction_per_percent * min(size_diff_pct, size_correction_cap_pct)
+size_diff_pct = 100 * |len_a - len_b| / max(len_a, len_b)
+```
+
+`--size-correction-cap-pct` (default `40.0`, matching the paper) bounds how far the correction
+grows. **The paper does not pin down its exact percent-difference denominator convention**;
+`max(len_a, len_b)` here is the standard definition, documented as PlasmiCord's own choice, not
+asserted as the paper's literal arithmetic. Disabled by default (`0.0`) reproduces clustering
+exactly as before -- this is the one option in PlasmiCord that changes clustering results, so it
+is opt-in, unlike purely additive diagnostics elsewhere. Affects `plasmid_clusters.tsv`,
+`threshold_sensitivity.tsv`, and `network.edge_evidence.tsv` (whose `interpretation` notes when
+a link's direct support depends on the correction). `plasmid_clusters.tsv`'s
+`unit_threshold_margin` is always reported against the base `--threshold`, never the corrected
+one -- a single per-unit margin cannot represent per-pair effective thresholds that vary by
+member length.
+
 ## Multilayer network export
 
 `--multilayer-network` (opt-in; no files are written when omitted) additionally writes
@@ -146,7 +199,7 @@ already computes by fields it already has -- not a true node-multiplex/projectio
 
 ## PlasAnn interoperability
 
-[PlasAnn](https://github.com/ajlopatkin/PlasAnn) (Prodigal+BLAST+Infernal) overlaps mostly
+PlasAnn (Prodigal+BLAST+Infernal) overlaps mostly
 with annotation PlasmiCord already gets from wrapped Prokka/Bakta/AMRFinderPlus/MOB-typer,
 except for oriT/oriV and transposon calls, which are not otherwise covered. Its output maps
 onto the functional feature TSV's existing generic columns without any schema change:
@@ -156,6 +209,45 @@ element; transposon calls to `functional_category=transposon`; set
 `detection_method`/`annotation_engine=PlasAnn` and `reference_accession` to the matched
 database entry. Use this mapping only for oriT/oriV/transposon evidence -- PlasAnn is not a
 replacement for the wrapped annotation pipeline.
+
+## ISfinder-sequences interoperability
+
+PlasmiCord has no insertion-sequence (IS) detection capability today. A user who BLASTs their
+candidates against ISfinder-sequences
+(`IS.fna`/`IS.faa`) externally can map hits into `functional_features.tsv` with no schema
+change: the IS family/group name to `gene_symbol`, the ISfinder Accession Number to
+`reference_accession`, `database_name=ISfinder`, `detection_method`/`annotation_engine` set to
+the BLAST tool/version used, and a new documented `functional_category` value:
+`insertion_sequence`. **Caveat**: this mirror carries no license and has been stale since 2020
+(four commits total) -- treat it as a convenience source only. Cite and verify against the
+[ISfinder](https://isfinder.biotoul.fr/) database directly rather than treating this mirror as
+an authoritative or versioned reference.
+
+## mobileOG-db interoperability
+
+mobileOG-db is a curated, actively maintained
+database of mobile-genetic-element (MGE) hallmark genes (transposases, integrases, relaxases,
+recombinases), searched with DIAMOND. Its hits map onto `functional_features.tsv` with no schema
+change: the mobileOG family/gene name to `gene_symbol`, its curated functional role
+(integration/excision, replication/recombination/repair, stability/transfer/defense) to
+`functional_subcategory`, the transfer/mobility role itself to the existing `mobility_function`
+column, `database_name=mobileOG-db`, `database_version` set to the release tag (e.g.
+`beatrix-1.6`), and a new documented `functional_category` value: `mobile_genetic_element`.
+**Caveat**: mobileOG-db is GPL-3.0 licensed -- that applies to the database file itself if it is
+ever bundled with a workflow rather than fetched separately by the user at annotation time.
+
+## Cenote-Taker interoperability
+
+PlasmiCord has no viral/prophage hallmark-gene detection capability today.
+Cenote-Taker3 (the successor to the now-deprecated
+Cenote-Taker2) is an HMM/homology-based virus and mobile-genetic-element discovery and annotation
+pipeline. Its hallmark-gene hits map onto `functional_features.tsv` with no schema change: the
+hallmark gene name to `gene_symbol`, its taxonomy call to `product_name`, `database_name`
+set to the specific viral-protein database searched, `detection_method=HMM`,
+`annotation_engine=Cenote-Taker3`, and a new documented `functional_category` value:
+`viral_or_prophage_element` -- kept distinct from mobileOG-db's broader `mobile_genetic_element`
+and ISfinder's `insertion_sequence` above, since Cenote-Taker specifically targets viral/phage
+hallmark genes, a narrower and different signal from either.
 
 ## PlasBench interoperability
 

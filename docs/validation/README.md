@@ -55,3 +55,12 @@ Ten standalone regressions, 17 gap-workflow tests, both original algorithm suite
 [docs/validation/SHIGELLA_COHORT.md](SHIGELLA_COHORT.md) records a real, public,
 accession-backed cohort (BioProject PRJNA857526) found while researching adoptable ideas
 from external repos. It is not yet part of this validation record — see that note for why.
+
+[docs/validation/KLEBSIELLA_BLOODSTREAM_COHORT.md](KLEBSIELLA_BLOODSTREAM_COHORT.md) records
+BioProject PRJNA1054115 (137 bloodstream *K. pneumoniae* isolates) — the strongest candidate
+found so far, with an explicit, citable pair-specific clonal-vs-cross-lineage transfer claim
+rather than only a population-level rate estimate.
+
+[docs/validation/ADDENBROOKES_CRE_COHORT.md](ADDENBROOKES_CRE_COHORT.md) records two further
+real cohorts (BioProjects PRJEB30134 and PRJNA981541) from the same paper that motivated
+PlasmiCord's `--size-correction-per-percent` option.

@@ -29,3 +29,10 @@ AMRFinder core-scope calls become headline ARGs only with at least 90% identity 
 Bakta/Prokka gene products do not establish orthology, pathway completeness or resistance phenotype. General CDS products may remain hypothetical. The shared package exports coordinates to PlasBench's zero-based, half-open protein contract while the PlasmiCord feature contract stays one-based inclusive.
 
 Primary tool specifications: [Bakta](https://github.com/oschwengers/bakta), [Prokka](https://github.com/tseemann/prokka), [AMRFinderPlus result interpretation](https://github.com/ncbi/amr/wiki/Interpreting-results), [MOB-suite](https://github.com/phac-nml/mob-suite).
+
+For evidence these three engines don't cover (oriT/oriV/transposon calls, insertion sequences,
+mobile-genetic-element hallmark genes, viral/prophage hallmark genes), see the
+PlasAnn/ISfinder-sequences/mobileOG-db/Cenote-Taker interoperability notes in the
+[input contract](INPUT_CONTRACT.md) -- all map onto the same
+`functional_features.tsv` schema via `--features`, with no schema change and no automatic-profile
+involvement.

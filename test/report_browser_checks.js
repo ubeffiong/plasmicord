@@ -46,10 +46,57 @@
     const query=node('gene-table').querySelector('input');query.value=feature.gene_symbol||feature.product_name;query.dispatchEvent(new Event('input',{bubbles:true}));
     node('gene-table').querySelector('tbody tr').click();
     assert(node('gene-detail').textContent.includes(feature.annotation_engine),'Gene details retain caller provenance');
+    if(node('track-view')) {
+      assert(!node('track').hidden && node('circular-track').hidden,'Linear track view is the default');
+      change('track-view','circular');
+      assert(node('track').hidden && !node('circular-track').hidden,'Circular view toggle swaps visible tracks');
+      assert(node('circular-track').querySelectorAll('circle').length>0,'Circular view draws a backbone ring per contig');
+      const wedge=node('circular-track').querySelector('path');
+      if(wedge) {
+        const wedgeLabel=wedge.getAttribute('aria-label');
+        wedge.dispatchEvent(new Event('click',{bubbles:true}));
+        assert(node('gene-detail').textContent.includes(wedgeLabel),'Clicking a circular-map wedge opens that exact feature\'s detail, not a placeholder or a different feature');
+      }
+      change('track-view','linear');
+      assert(!node('track').hidden && node('circular-track').hidden,'Toggling back restores the linear view');
+    }
   }
   if(data.calibration) assert(node('calibration-table').textContent.includes('validation'), 'Holdout metrics surfaced');
   const charts=document.querySelectorAll('.chart').length;
   assert(charts>=4,'Chart modules rendered');
+  if(node('size-by')) {
+    const before=node('legend').innerHTML;
+    assert(!before.includes('Node size'),'Node-size legend absent by default');
+    change('size-by','degree');
+    assert(node('legend').innerHTML.includes('Node size'),'Node-size legend appears once a size mode is active');
+    change('size-by','none');
+    assert(!node('legend').innerHTML.includes('Node size'),'Node-size legend removed when reset to none');
+  }
+  const firstEdgeLine=node('network').querySelector('line');
+  if(firstEdgeLine) {
+    firstEdgeLine.dispatchEvent(new Event('click',{bubbles:true}));
+    assert(node('edge-unit').options.length>=1,'Selecting an edge populates its shared-unit selector');
+    assert(node('edge-tracks-svg').children.length>0,'Selecting an edge renders its gene-track comparison');
+    assert(node('edge-tracks-caption').textContent.includes('not sequence alignment'),'Gene-track comparison carries its non-alignment caveat');
+    if(node('edge-unit').options.length>1) {
+      const before=node('edge-tracks-svg').innerHTML;
+      change('edge-unit',node('edge-unit').options[1].value);
+      assert(node('edge-tracks-svg').innerHTML!==before,'Switching the shared-unit selector redraws the comparison');
+    }
+  }
+  const datedCount=data.metadata.filter(m=>m.date&&!isNaN(Date.parse(m.date))).length;
+  assert(node('timeline').querySelectorAll('circle').length===datedCount,'Timeline plots exactly the dated isolates');
+  const hasUndated=data.metadata.length>datedCount, undatedTextShown=node('timeline-undated-isolates').textContent.length>0;
+  assert(undatedTextShown===hasUndated,'Undated isolates are listed, not silently dropped');
+  if(node('chart-units').querySelector('.chart-actions')) {
+    const findToggle=()=>[...node('chart-units').querySelectorAll('.chart-actions button')].find(b=>/log|linear/i.test(b.textContent));
+    const toggle=findToggle();
+    assert(!!toggle,'Log/linear scale toggle present on the unit-size chart');
+    const before=toggle.textContent;
+    toggle.click(); // barChart() fully redraws and replaces the button; re-query, don't reuse the old reference
+    const after=findToggle();
+    assert(!!after&&after.textContent!==before,'Toggle switches its own label after a click');
+  }
   window.dispatchEvent(new Event('beforeprint'));
   assert(node('sample-table').querySelectorAll('tbody tr').length===data.metadata.length,'Print includes all sample rows');
   window.dispatchEvent(new Event('afterprint'));
