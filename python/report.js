@@ -153,6 +153,7 @@ function cargo(){
  const contigs=D.contigs[pid]||[],linearRoot=$('track'),circularRoot=$('circular-track');
  const noFeaturesText='No reported features for this selection; consult stage completion before interpretation.';
  linearRoot.hidden=view==='circular';circularRoot.hidden=view!=='circular';
+ $('zoom').disabled=view==='circular';$('zoom').title=view==='circular'?'Track zoom applies to the linear view only':'Zoom the linear track';
  if(view==='circular'){
   circularRoot.replaceChildren();
   const [cw,ch]=drawCircularTrack(circularRoot,contigs,rows,featureDetail);

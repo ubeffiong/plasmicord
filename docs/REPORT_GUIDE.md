@@ -31,7 +31,7 @@ Use **Print / save PDF** for a static copy. Printing expands report details and 
 
 Tables support search, numeric/text sorting, 25-row pagination, keyboard-accessible inspection and filtered TSV export. Exports include all matching rows, not just the displayed page. Spreadsheet formula-like text is escaped in interactive TSV exports; raw output downloads are unchanged.
 
-Charts show quality tiers, candidate size bands, annotation completion, function-category carriers, unit sizes, drug-class carriers, metadata coverage, collection months and threshold sensitivity. Each chart has an SVG download and a TSV export of all its data. Counting rules and denominators are recorded in report_charts.json. Categories and drug classes can overlap; these charts must not be added together as disjoint counts.
+Charts show quality tiers, candidate size bands, annotation completion, function-category carriers, unit sizes, drug-class carriers, metadata coverage, collection months and threshold sensitivity. Each chart has an SVG download and a TSV export of all its data. Counting rules and denominators are recorded in report_charts.json. Categories and drug classes can overlap; these charts must not be added together as disjoint counts. Bar charts with a wide value range offer a log/linear scale toggle; the axis label always states the true count, with a "(log-scaled bar lengths)" qualifier when log scaling is applied to the bar geometry only.
 
 ## Automated interpretations
 

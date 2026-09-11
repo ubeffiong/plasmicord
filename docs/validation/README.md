@@ -48,7 +48,7 @@ This is an integration test on two real plasmids, not an annotation-accuracy ben
 
 ## Software checks
 
-Ten standalone regressions, 17 gap-workflow tests, both original algorithm suites, Windows synthetic runs, WSL Mash/annotation runs, native PlasBench-export import, independent package builds/install checks and offline Chromium report checks were performed. PlasBench native import used its existing synthetic audit export and is not counted as real-cohort evidence.
+Seven standalone regressions, 40 gap-workflow tests, six detailed-report tests, both original algorithm suites, Windows synthetic runs, WSL Mash/annotation runs, native PlasBench-export import, independent package builds/install checks and offline Chromium report checks were performed. PlasBench native import used its existing synthetic audit export and is not counted as real-cohort evidence.
 
 ## Candidate future cohorts
 

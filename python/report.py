@@ -16,13 +16,27 @@ SAFEGUARDS = [
 ]
 
 
-def build_report(out, provenance, index, meta, assignments, features, functions, evidence, sequences):
+def _read_tsv_if_present(path):
+    return read_tsv(path) if path.is_file() else []
+
+
+def build_report(out, provenance, index, meta, assignments, features, functions, evidence, sequences,
+                 containment=None, typing_crossreference=None, multilayer_edges=None):
     crosslinks = read_tsv(out / "discordance.crosslinks.tsv")
     edges = read_tsv(out / "network.edges.tsv")
     known = sum(bool(r.get("chromosomal_cluster")) for r in meta)
     annotation_status = read_tsv(out/'annotation_status.tsv') if (out/'annotation_status.tsv').is_file() else []
     quality = read_tsv(out/'biological_quality.tsv') if (out/'biological_quality.tsv').is_file() else []
     amr_evaluated = sum(r.get('stage') == 'amr' and r.get('status') == 'complete' for r in annotation_status)
+    # Callers that already hold these in memory (cli.py::run()) pass them directly; a caller with
+    # only the output directory (e.g. `plasmicord report`'s regeneration path) falls back to
+    # reading the recorded TSV, matching every other optional artifact's defensive pattern below.
+    if containment is None:
+        containment = _read_tsv_if_present(out / "containment_candidates.tsv")
+    if typing_crossreference is None:
+        typing_crossreference = _read_tsv_if_present(out / "typing_crossreference.tsv")
+    if multilayer_edges is None:
+        multilayer_edges = _read_tsv_if_present(out / "network.multilayer_edges.tsv")
     counts = dict(isolates=len(meta), plasmids=len(assignments), units=len(set(assignments.values())),
                   sharing_pairs=len(edges), cross_cluster_pairs=len({(r['isolate_a'], r['isolate_b']) for r in crosslinks}),
                   cross_cluster_unit_links=len(crosslinks), typed_isolates=known,
@@ -33,6 +47,7 @@ def build_report(out, provenance, index, meta, assignments, features, functions,
                    crosslinks=crosslinks, safeguards=SAFEGUARDS, biological_quality=quality, annotation_status=annotation_status,
                    contigs={pid: [{"id": name, "length": len(seq)} for name, seq in records] for pid, records in sequences.items()},
                    sensitivity=read_tsv(out / "threshold_sensitivity.tsv"),
-                   plasmid_clusters=read_tsv(out / "plasmid_clusters.tsv") if (out / "plasmid_clusters.tsv").is_file() else [])
+                   plasmid_clusters=read_tsv(out / "plasmid_clusters.tsv") if (out / "plasmid_clusters.tsv").is_file() else [],
+                   containment=containment, typing_crossreference=typing_crossreference, multilayer_edges=multilayer_edges)
     from .report_output import render_dashboard
     return render_dashboard(out, payload)

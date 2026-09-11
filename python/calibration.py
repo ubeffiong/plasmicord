@@ -69,7 +69,10 @@ def calibrate(args):
         right = {by_id[pid][field] for pid in split_ids['validation']}
         if '' in left or '' in right or left & right:
             raise ValueError(f"Training/validation leakage or missing values in {field}")
-    thresholds = sorted(set(float(t) for t in args.thresholds.split(',')))
+    try:
+        thresholds = sorted(set(float(t) for t in args.thresholds.split(',')))
+    except ValueError:
+        raise ValueError("Thresholds must be a comma-separated list of numbers") from None
     if not thresholds or any(not math.isfinite(t) or not 0 <= t <= 1 for t in thresholds):
         raise ValueError("Thresholds must be finite distances in [0,1]")
     if args.min_groups < 1:

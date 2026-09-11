@@ -56,6 +56,10 @@ def describe(path):
         "threshold_sensitivity.tsv": ("Units", "Unit/singleton counts across alternative thresholds"),
         "containment_candidates.tsv": ("Units", "Length/similarity heuristic pairs; not alignment-confirmed containment"),
         "typing_crossreference.tsv": ("Annotation", "Opaque external identifiers (e.g. MOB-suite cluster IDs, COPLA PTU); never used to compute quality tiers"),
+        "network.multilayer_edges.tsv": ("Sharing", "Per-(isolate pair, plasmid unit) sharing edges tagged with cluster relation; present only with --multilayer-network"),
+        "network.multilayer.graphml": ("Sharing", "Multilayer sharing network for Cytoscape or Gephi; present only with --multilayer-network"),
+        "population_summary.pu_level.tsv": ("Report", "Cohort-level plasmid-unit aggregation from plasmicord population-summary"),
+        "population_summary.metadata_dimension.tsv": ("Report", "Cohort-level metadata-dimension aggregation from plasmicord population-summary"),
         "functional_features.tsv": ("Functions", "Validated contig-coordinate functional evidence"),
         "automatic_features.tsv": ("Annotation", "Normalized automatic-caller output before unit assignment"),
         "plasmid_unit_function.tsv": ("Functions", "Observed function prevalence and annotation coverage"),
@@ -74,11 +78,13 @@ def describe(path):
         "output_manifest.json": ("Provenance", "Final recursive inventory and SHA-256 checksums"),
         "REPORT_BUNDLE.zip": ("Report", "Portable report and all inventoried result files"),
     }
+    if name in descriptions:
+        return descriptions[name]
     if name.startswith("network."):
         return "Sharing", "Isolate sharing network or pair-unit supporting evidence"
     if name.startswith("discordance."):
         return "Chromosome context", "Known chromosome-cluster discordance evidence"
-    return descriptions.get(name, ("Other outputs", "Additional file present in the result directory"))
+    return "Other outputs", "Additional file present in the result directory"
 
 
 def catalog(root, include_generated=False, previews=True):
@@ -205,6 +211,23 @@ def summary(payload):
         finding("cache_reuse", "info", "Annotation reuse",
                 f"{cached} stage results were reused from checksum-verified cache. Raw files may exist only in the original run; the current stage provenance records the original command and raw-output hash.",
                 ["annotation_provenance.json"], "Use the current stage records to distinguish cached results from newly executed calls.", "quality")
+    containment = payload.get("containment", [])
+    if containment:
+        interpretations = Counter(c.get("interpretation") for c in containment)
+        finding("containment_candidates", "warn", "Length/similarity containment candidates",
+                f"{len(containment)} candidate pairs matched the configured length-ratio and distance heuristic ({dict(interpretations)}). This is not alignment-confirmed containment or a co-integrate/subclone call.",
+                ["containment_candidates.tsv"], "Confirm candidate pairs with sequence alignment before treating either as contained within the other.", "sharing")
+    typing_crossreference = payload.get("typing_crossreference", [])
+    if typing_crossreference:
+        finding("typing_coverage_external", "info", "External typing cross-reference",
+                f"{len(typing_crossreference)}/{n} accepted plasmids carry an attached external identifier (e.g. MOB-suite cluster, COPLA PTU, PlasmidFinder Inc-type, PLSDB nearest match). These opaque cross-references never influence PlasmiCord's own quality tiers.",
+                ["typing_crossreference.tsv"], "Cross-check external calls against their own source database version and confidence before combining with PlasmiCord evidence.", "quality")
+    multilayer_edges = payload.get("multilayer_edges", [])
+    if multilayer_edges:
+        cross = sum(e.get("cluster_relation") == "cross_cluster" for e in multilayer_edges)
+        finding("multilayer_network", "info", "Multilayer (isolate pair, plasmid unit) network",
+                f"{len(multilayer_edges)} per-unit sharing edges exported, {cross} tagged crossing a known chromosomal cluster. This decomposes the aggregate sharing network by plasmid unit; it does not add new evidence.",
+                ["network.multilayer_edges.tsv", "network.multilayer.graphml"], "Load the GraphML export to inspect which plasmid units drive cross-cluster sharing.", "sharing")
 
     samples = []
     for m in metadata:

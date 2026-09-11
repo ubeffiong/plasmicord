@@ -100,6 +100,10 @@ def run(args):
                   min_length=args.min_length,
                   size_correction_per_percent=getattr(args, 'size_correction_per_percent', 0.0),
                   size_correction_cap_pct=getattr(args, 'size_correction_cap_pct', 40.0),
+                  containment_min_ratio=containment_min_ratio, containment_max_ratio=containment_max_ratio,
+                  containment_max_distance=containment_max_distance,
+                  multilayer_network=bool(getattr(args, 'multilayer_network', False)),
+                  annotation_profile=getattr(args, 'annotation_profile', None),
                   manifest_sha256=checksum(args.manifest), metadata_sha256=checksum(args.metadata),
                   features_sha256=checksum(args.features) if args.features else None,
                   annotation_status="imported; absence not evaluated" if args.features else "not_evaluated",
@@ -127,9 +131,9 @@ def run(args):
         if getattr(args, 'external_typing', None):
             record['external_typing_sha256'] = checksum(args.external_typing)
         accepted = [r for r in index if r["quality_status"] != "rejected"]
+        typing_rows = [external_typing[r["plasmid_id"]] for r in accepted if r["plasmid_id"] in external_typing]
         if external_typing:
-            write_tsv(out / "typing_crossreference.tsv", EXTERNAL_TYPING_FIELDS,
-                      [external_typing[r["plasmid_id"]] for r in accepted if r["plasmid_id"] in external_typing])
+            write_tsv(out / "typing_crossreference.tsv", EXTERNAL_TYPING_FIELDS, typing_rows)
         write_tsv(out / "validation.tsv", INDEX_FIELDS, index)
         pdir = out / "plasmids"
         pdir.mkdir()
@@ -220,6 +224,7 @@ def run(args):
                                          shared_args=";".join(sorted(shared_args)),
                                          interpretation=interpretation))
         write_tsv(out / "network.edge_evidence.tsv", "source target plasmid_unit minimum_distance direct_threshold_support threshold_margin shared_args interpretation".split(), edge_details)
+        layered = []
         if getattr(args, 'multilayer_network', False):
             meta_by_iso = {r["isolate_id"]: r for r in meta}
             layered = multilayer_edges(edge_details, meta_by_iso)
@@ -232,7 +237,8 @@ def run(args):
         record.update(status="complete", completed_at=datetime.now(timezone.utc).isoformat(),
                       n_isolates=len(meta), n_plasmids=len(accepted), n_rejected=len(index) - len(accepted), n_units=len(set(assignments.values())))
         # Report generation must succeed before the run is recorded as complete on disk.
-        build_report(out, record, index, meta, assignments, features, functions, edge_details, sequences)
+        build_report(out, record, index, meta, assignments, features, functions, edge_details, sequences,
+                     containment=containment_rows, typing_crossreference=typing_rows, multilayer_edges=layered)
         print(f"Complete: {out / 'REPORT.html'}")
     except BaseException as error:
         record.update(status="failed", error=str(error))
