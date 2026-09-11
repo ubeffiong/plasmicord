@@ -34,6 +34,11 @@ Open **`results_demo/results/REPORT.html`** in a browser. The demo uses seeded r
 sequences and clearly labelled illustrative gene annotations, not biological detections.
 Expected: 5 isolates, 5 plasmids, 2 PUs, 4 sharing pairs, 3 cross-cluster pairs.
 
+For a synthetic tour of every dashboard capability at once — external typing, the
+length/similarity containment heuristic, size-corrected clustering, a multilayer network
+export and `copy_number` evidence — run `python scripts/full_feature_demo.py --out
+results_full_demo` instead (also illustrative, not biological).
+
 Optional installation provides the `plasmicord` command from any directory:
 
 ```sh
@@ -183,11 +188,30 @@ reconstruction and the supplied conda environment target Linux/WSL.
 python -m unittest discover -s test -p test_standalone.py -v
 python -m unittest discover -s test -p test_gap_workflows.py -v
 python -m unittest discover -s test -p test_detailed_report.py -v
+python -m unittest discover -s test -p test_cli_end_to_end.py -v
+python -m unittest discover -s test -p test_edge_cases.py -v
 python -m unittest discover -s test -p test_documentation_links.py -v
 python test/test_clustering.py
 python test/test_network_discordance.py
 python plasmicord.py demo --out results_check
 ```
+
+`test_cli_end_to_end.py` and `test_edge_cases.py` invoke `plasmicord.py` as a real subprocess
+(argparse parsing, exit codes and stderr text included) for every subcommand, plus malformed
+inputs and boundary conditions (a missing `mash` binary, out-of-order `--containment-*` bounds,
+a tampered `run_provenance.json`, an all-rejected cohort). Both require no network access, like
+every other test here.
+
+For a synthetic run that exercises every dashboard feature at once (external typing,
+containment, size-corrected clustering, a multilayer network export and `copy_number` evidence),
+run `python scripts/full_feature_demo.py --out results_full_demo` (or `make full-demo`).
+
+An opt-in, network-touching smoke test downloads a small real, accession-backed *E. coli*
+plasmid cohort (BioProject PRJNA636382) from NCBI and runs the full pipeline against it —
+`make real-cohort-test` (or `PLASMICORD_REAL_COHORT_TEST=1 python -m unittest discover -s test -p test_real_cohort.py -v`).
+It is not part of `make test` or the CI template: PlasmiCord's core analysis requires no
+network access, and this check is a pipeline-completeness smoke test, not a claim about the
+biology of that cohort.
 
 Tests establish software behaviour on fixtures; they do not establish biological
 accuracy. The [review](docs/REVIEW.md) records validation performed for this release.

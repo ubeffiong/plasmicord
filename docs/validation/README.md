@@ -50,6 +50,18 @@ This is an integration test on two real plasmids, not an annotation-accuracy ben
 
 Seven standalone regressions, 40 gap-workflow tests, six detailed-report tests, both original algorithm suites, Windows synthetic runs, WSL Mash/annotation runs, native PlasBench-export import, independent package builds/install checks and offline Chromium report checks were performed. PlasBench native import used its existing synthetic audit export and is not counted as real-cohort evidence.
 
+## Automated real-cohort smoke test
+
+`make real-cohort-test` (or `PLASMICORD_REAL_COHORT_TEST=1 python -m unittest discover -s test
+-p test_real_cohort.py -v`) downloads a small, real, accession-backed 3-isolate/6-plasmid subset
+of BioProject PRJNA636382 directly from NCBI (`scripts/fetch_real_cohort.py`, stdlib `urllib`
+only) and runs the full `plasmicord run` pipeline against it. This is a lightweight, repeatable
+pipeline-completeness check, not the larger one-time 32-isolate validation exercise described
+above — it makes no claim about transmission truth, only that the pipeline runs to completion
+and produces coherent output on genuine public sequence data. It requires network access and is
+therefore not part of `make test` or the CI template, consistent with the rest of this project's
+"no network access required" core analysis.
+
 ## Candidate future cohorts
 
 [docs/validation/SHIGELLA_COHORT.md](SHIGELLA_COHORT.md) records a real, public,
