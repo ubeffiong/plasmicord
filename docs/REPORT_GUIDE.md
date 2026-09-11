@@ -1,4 +1,4 @@
-# Detailed final-report guide — PlasmiCord v0.4.0
+# Detailed final-report guide — PlasmiCord v0.5.0
 
 Every completed analysis now produces an offline dashboard, a detailed Markdown companion, a recursive output manifest and a ZIP containing the report with all regular files in its result directory. The report is generated automatically by `plasmicord run` and `plasmicord demo`.
 
@@ -22,9 +22,9 @@ Use **Print / save PDF** for a static copy. Printing expands report details and 
 | General statistics | Every isolate, accepted/rejected candidate counts, total accepted length, unit count, sharing partners, eligible ARG labels and AMR completion denominator |
 | Individual isolate | Full supplied metadata, selected-isolate interpretation, candidate inventory, annotation stages, pair–unit evidence and candidate-specific files |
 | Distances and units | Unit sizes, threshold sensitivity, pairwise distance heatmap, exact pair selectors and membership table |
-| Sharing and chromosome context | Metadata/ARG filters, chromosome/location/organism colours, optional node-size encoding, clickable nodes/edges, direct-threshold support, a pairwise gene-track comparison for a selected edge, an isolate timeline with distance-labelled edges, cross-cluster observations and filtered-network interpretation |
+| Sharing and chromosome context | Metadata/ARG filters, chromosome/location/organism colours, optional node-size encoding, clickable nodes/edges, direct-threshold support, a pairwise gene-track comparison for a selected edge, an isolate timeline with distance-labelled edges, cross-cluster observations, length/similarity containment candidates, multilayer per-plasmid-unit sharing edges (with `--multilayer-network`) and filtered-network interpretation |
 | Functional cargo | Unit/candidate/category/search selectors, directional contig gene tracks with a circular gene-map toggle, complete feature provenance, observed function prevalence and evaluation coverage |
-| Quality and annotation | All candidate decisions, biological evidence, stage completion, versions, cache reuse and raw sensitivity values |
+| Quality and annotation | All candidate decisions, biological evidence, stage completion, versions, cache reuse, raw sensitivity values and the external typing cross-reference table (with `--external-typing`) |
 | Calibration | Matching attached calibration's target, training-selected cutoff, current analysis cutoff, holdout confusion counts, metrics and limitations |
 | Output explorer | Every regular result file, nested folders, search/module filters, bounded text preview, original-file access/download, type, purpose, byte size, UTC modification time and SHA-256 |
 | Run metadata and methods | Analysis and renderer versions, parameters, software/database records, full provenance snapshot, rule explanation and scientific safeguards |

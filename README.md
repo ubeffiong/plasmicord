@@ -14,7 +14,7 @@ PlasBench asks **“How trustworthy is this reconstruction?”** This project as
 It does not install, import or call PlasBench. Any reconstruction workflow can supply
 the same FASTA-plus-manifest contract. See [project positioning](docs/POSITIONING.md).
 
-**Status: v0.4.0 research prototype.** A sharing link is not proof of direct transmission.
+**Status: v0.5.0 research prototype.** A sharing link is not proof of direct transmission.
 Automatic annotation, biological evidence grading, native imports and study-specific
 calibration are implemented. Quality tiers remain heuristic research rules.
 See the [review and gap assessment](docs/REVIEW.md) for implemented versus planned features.

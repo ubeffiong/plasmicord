@@ -71,4 +71,34 @@ Software validation covers ten standalone regressions, the new gap-workflow test
 - A fifth round of study (plsdb, repp [Lattice-Automation and jjti confirmed the same project, development moved from the original author's repo to his company's], PlasForest, roundabout, Cenote-Taker2→3, octopus3, yapv, PCNE, Plasmid-Planner) again found no duplication of PlasmiCord's core mission. Adopted: `--external-typing` now also accepts a nearest-reference cross-reference against PLSDB (~72,360 curated plasmids, CC-BY) -- `plsdb_nearest_accession`/`plsdb_nearest_distance`/`plsdb_nearest_host`, populated by running `mash dist` locally against PLSDB's own downloadable Mash sketch, no new dependency; PlasForest is documented as a fourth compatible `--quality-evidence` classifier alongside PlaScope/PlasFlow/Plasmer (a genuinely different BLAST-homology feature set, though also legacy-compatible/unmaintained -- see [QUALITY.md](QUALITY.md)); `--quality-evidence` gains an optional `copy_number` field (e.g. from PCNE) that is recorded and reported but deliberately never influences quality tiers, since no literature-backed threshold exists for it the way one does for read breadth/depth/contamination; and a docs-only `functional_features.tsv` mapping guide for Cenote-Taker3's viral/prophage hallmark-gene hits (`functional_category=viral_or_prophage_element`, kept distinct from mobileOG-db's broader MGE category and ISfinder's insertion-sequence category). While implementing this round's `copy_number` validation, a pre-existing gap was also fixed: `load_evidence()`'s `mean_depth` check (and the new `copy_number` check that mirrored it) crashed with a raw, unhelpful Python `ValueError` on non-numeric input instead of the clean message every other numeric field in this codebase already gives; both now fail cleanly.
 - Not adopted: repp and Plasmid-Planner are wet-lab DNA-assembly/cloning *construction-planning* tools (desired sequence in, build protocol out), the same category as SpliceCraft/motif already rejected. roundabout is a real, actively-maintained plasmid-outbreak-clustering pipeline, but its annotation stack (AMRFinderPlus, PlasmidFinder) is already directly integrated into PlasmiCord -- this round confirms rather than extends that integration; its plotting stack (PyGenomeViz/MinkeMap/DaisyBlast) renders separate images, not a portable inline-SVG technique. octopus3's reference-concordance colony-QC idea (map reads to expected sequence, flag variants) is conceptually adjacent but too generic to turn into a concrete new evidence field without inventing an under-specified rule -- noted only as a framing idea for possible future work. yapv is a genuinely dependency-free (no React/build-step, unlike seqviz) plasmid-map renderer -- technically inlinable without violating PlasmiCord's single-file constraint -- but 4.5 years without a commit, and offers no visual capability (GC-content ring, restriction sites) beyond PlasmiCord's own circular-map view already shipped in the prior round; its generic Track/Marker/leader-line schema is noted as a possible future internal convention if a second annotation-ring type is ever added, not built now.
 
+## v0.5.0, 11 September 2026: production-readiness audit, comprehensive test suite and dashboard completion
+
+A full production-readiness audit found three "silo" outputs -- `containment_candidates.tsv`,
+`typing_crossreference.tsv` and `network.multilayer_edges.tsv`/`.graphml` -- were computed and
+written to disk but never threaded into `report_data.json`, making them invisible to anyone
+using the dashboard rather than reading raw TSVs directly. Fixed: `report.py::build_report()`
+now accepts and embeds all three (with a defensive disk-read fallback for the `plasmicord
+report` regeneration path), `report_evidence.py` gained matching `describe()` catalog entries
+and `finding()` rules, and the dashboard's Sharing and Quality sections now have dedicated
+sortable/searchable/exportable tables for containment candidates, multilayer network edges and
+the external typing cross-reference, not just a findings-grid summary sentence. Also fixed in
+the same audit: an unguarded `float()` in `calibration.py`'s `--thresholds` parsing, a stale
+gap-workflow test count in the validation record, and a missing visual cue disabling the
+now-inapplicable "Track zoom" control in circular gene-map view.
+
+Test coverage was substantially widened: `test_cli_end_to_end.py` invokes `plasmicord.py` as a
+real subprocess for every subcommand (argparse parsing, exit codes and stderr text included --
+previously every test called internal functions directly with a hand-built `argparse.Namespace`,
+never exercising real CLI behavior), and `test_edge_cases.py` covers malformed manifests,
+dangling file references, duplicate IDs, non-UTF-8 input, an all-rejected cohort, a missing
+`mash` binary, out-of-order CLI bounds and a tampered `run_provenance.json`. A new
+`scripts/full_feature_demo.py` (`make full-demo`) exercises every dashboard capability in one
+synthetic run. A new opt-in, network-touching `scripts/fetch_real_cohort.py` (stdlib `urllib`
+only, the repository's first network code) downloads a small real, accession-backed *E. coli*
+cohort from NCBI (BioProject PRJNA636382) and `test_real_cohort.py`/`make real-cohort-test` runs
+the full pipeline against it -- kept out of `make test`/CI since it requires network access,
+unlike the rest of this project. Run live against real sequences, it correctly recovered a
+persistence signal already known from the source study: both plasmids carried by isolate
+`upec_ecpf5` are shared with `upec_ecpf7`, the same recurrent-UTI patient's other episode.
+
 GitHub Actions remains disabled because the available authorization lacks workflow-write scope. The [CI template](ci-template.yml) includes the new tests and can be installed by a maintainer with that permission.

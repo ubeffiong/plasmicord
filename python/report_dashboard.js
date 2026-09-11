@@ -14,6 +14,9 @@ const versions=new Map();for(const s of D.annotation_status||[]){if(s.engine)ver
 if(D.provenance.mash_version)versions.set('mash',{engine:'Mash',version:D.provenance.mash_version,database_version:'not applicable',database_sha256:'not applicable'});
 table('versions-table',[...versions.values()],['engine','version','database_version','database_sha256']);
 table('mobility-table',(D.biological_quality||[]).map(q=>({plasmid_id:q.plasmid_id,replicon_type:q.replicon_type,mobility_class:q.mobility_class,quality_status:q.quality_status})),['plasmid_id','replicon_type','mobility_class','quality_status']);
+table('containment-table',D.containment||[],['small_plasmid_id','large_plasmid_id','small_isolate_id','large_isolate_id','small_length','large_length','length_ratio','pairwise_distance','max_distance']);
+table('multilayer-table',D.multilayer_edges||[],['source','target','plasmid_unit','cluster_relation','minimum_distance','threshold_margin']);
+table('typing-table',D.typing_crossreference||[],['plasmid_id','external_tool','mob_primary_cluster_id','ptu_assignment','predicted_host_range_overall_name','predicted_transmissibility_call','predicted_classification_call','plasmidfinder_inc_types','plsdb_nearest_accession','plsdb_nearest_distance','evidence_source']);
 $('category-legend').innerHTML=Object.entries(categoryColours).map(([name,colour])=>'<span style="color:'+colour+'">● '+esc(human(name))+'</span>').join('');
 $('status-palette').onchange=e=>{document.body.dataset.palette=e.target.value;};
 $('print-report').onclick=()=>window.print();

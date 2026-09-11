@@ -10,7 +10,7 @@ from unittest.mock import patch
 import zipfile
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-from python import PROJECT_TITLE, PROJECT_TAGLINE
+from python import PROJECT_TITLE, PROJECT_TAGLINE, __version__
 from python.contracts import write_tsv
 from python.report_evidence import summary, catalog, sha256, result_files
 from python.report_output import render_dashboard, refresh_report, attach_calibration
@@ -78,7 +78,7 @@ class DetailedReportTests(unittest.TestCase):
         self.assertEqual(before,sha256(self.out/"plasmid_matrix.tsv"))
         self.assertFalse((self.out/"REPORT_BUNDLE.zip").exists())
         result=json.loads((self.out/"report_data.json").read_text())
-        self.assertEqual(result["report"]["renderer_version"],"0.4.0")
+        self.assertEqual(result["report"]["renderer_version"],__version__)
         self.assertFalse(result["report"]["bundle"])
     def test_refresh_rejects_changed_analysis_and_payload(self):
         data=self.payload();render_dashboard(self.out,data,bundle=False)
