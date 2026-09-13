@@ -39,6 +39,28 @@ length/similarity containment heuristic, size-corrected clustering, a multilayer
 export and `copy_number` evidence — run `python scripts/full_feature_demo.py --out
 results_full_demo` instead (also illustrative, not biological).
 
+### Try it on real public data (no files of your own needed)
+
+```sh
+python scripts/fetch_real_cohort.py --out results_real_cohort/downloaded
+python scripts/prepare_reference_validation.py \
+  --cohort results_real_cohort/downloaded/cohort.tsv \
+  --references results_real_cohort/downloaded/references \
+  --out results_real_cohort/prepared
+python plasmicord.py run --manifest results_real_cohort/prepared/manifest.tsv \
+  --metadata results_real_cohort/prepared/metadata.tsv \
+  --mode precomputed --engine kmer --threshold 0.05 --linkage complete \
+  --out results_real_cohort/results
+```
+
+Open **`results_real_cohort/results/REPORT.html`**. This downloads a small (~280 KB), real,
+accession-backed 3-isolate/6-plasmid *E. coli* cohort (BioProject PRJNA636382) directly from
+NCBI over HTTPS (`fetch_real_cohort.py` is the only network-touching script in this project;
+everything else runs offline) and analyses it exactly like any other manifest. It requires
+internet access and is a pipeline-completeness demonstration on genuine sequences, not a
+validated transmission or biology claim — see [public-reference validation](docs/validation/README.md)
+for the larger, independently labelled real cohort this project's own accuracy claims are based on.
+
 Optional installation provides the `plasmicord` command from any directory:
 
 ```sh
@@ -53,7 +75,12 @@ explicit study-selected threshold. A threshold is not a transmission probability
 
 ## Run your reconstructed plasmids
 
-Provide a tab-separated manifest with three required columns:
+Step by step: (1) build a manifest of your candidate plasmid FASTAs, (2) build a metadata TSV
+of your isolates, (3) run `plasmicord run` against them, (4) open the generated `REPORT.html`,
+then (5) optionally add functional annotation, external typing, calibration or the other
+extensions below. Details for each step follow.
+
+**1. Build the manifest.** Provide a tab-separated manifest with three required columns:
 
 ```text
 isolate_id	plasmid_id	fasta_path
@@ -65,10 +92,12 @@ Paths are relative to the manifest. Each FASTA represents one plasmid candidate;
 multiple contigs in that file represent a fragmented candidate, not multiple plasmids.
 Keep separate candidate plasmids in separate files.
 
-Provide a separate metadata TSV containing every isolate, including those without
-indexed plasmids. `isolate_id` is required; `chromosomal_cluster`, ISO-format `date`,
-`location`, and `organism` are optional. Cluster labels must use a common, documented
+**2. Build the metadata.** Provide a separate metadata TSV containing every isolate, including
+those without indexed plasmids. `isolate_id` is required; `chromosomal_cluster`, ISO-format
+`date`, `location`, and `organism` are optional. Cluster labels must use a common, documented
 typing scheme and be namespaced where organisms/schemes differ.
+
+**3. Run the pipeline.**
 
 ```sh
 plasmicord run --manifest manifest.tsv --metadata metadata.tsv \
@@ -78,6 +107,13 @@ plasmicord run --manifest manifest.tsv --metadata metadata.tsv \
 
 `0.01` is an example, **not a validated universal cutoff**. Evaluate sensitivity and
 confirm prioritized links using sequence alignment, assembly evidence and epidemiology.
+
+**4. Open the report.** Open **`results_cohort/REPORT.html`** in a browser — unlike `demo`
+and `full_feature_demo.py`, which nest their output under `<out>/results/`, `plasmicord run`
+writes every file (including `REPORT.html`) directly into the `--out` directory you gave it.
+
+**5. Optional extensions.** Everything below adds evidence to the same `plasmicord run`
+invocation; none of it is required for a first run.
 
 Use `--mode longread`, `hybrid`, or `plasbench` to describe the source. These modes
 all use the same normalized manifest and validation gate. `plasmicord import` adapts

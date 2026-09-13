@@ -46,6 +46,8 @@ plasmicord run --manifest manifest.tsv --metadata metadata.tsv \
   --engine mash --threshold 0.01 --out results_cohort
 ```
 
+Open `results_cohort/REPORT.html` — unlike `demo`, which nests its output under
+`<out>/results/`, `run` writes directly into the `--out` directory given to it.
 Use an appropriately calibrated threshold; the example is not a recommended universal
 value. Use `--engine kmer` explicitly for small inputs if Mash is unavailable.
 
