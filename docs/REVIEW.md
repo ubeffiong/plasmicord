@@ -101,4 +101,8 @@ unlike the rest of this project. Run live against real sequences, it correctly r
 persistence signal already known from the source study: both plasmids carried by isolate
 `upec_ecpf5` are shared with `upec_ecpf7`, the same recurrent-UTI patient's other episode.
 
+## v0.5.1, 13 September 2026: relicensed to GPL-3.0
+
+The project relicensed from MIT to GNU GPL-3.0 (see [LICENSE](../LICENSE)); no functional change. `v0.5.0` remains available under its original MIT terms for anyone who obtained it under that license.
+
 GitHub Actions remains disabled because the available authorization lacks workflow-write scope. The [CI template](ci-template.yml) includes the new tests and can be installed by a maintainer with that permission.

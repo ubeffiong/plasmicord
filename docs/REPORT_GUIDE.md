@@ -1,4 +1,4 @@
-# Detailed final-report guide — PlasmiCord v0.5.0
+# Detailed final-report guide — PlasmiCord v0.5.1
 
 Every completed analysis now produces an offline dashboard, a detailed Markdown companion, a recursive output manifest and a ZIP containing the report with all regular files in its result directory. The report is generated automatically by `plasmicord run` and `plasmicord demo`.
 
